@@ -1,0 +1,19 @@
+{
+    "author": "Dave Rolsky <autarch@urth.org> (http://blog.urth.org)",
+    "name": "Brocket",
+    "description": "A self-hosting and self-extensible class system for Javascript",
+    "version": "0.0.0",
+    "repository": {
+        "type": "git",
+        "url": "git://git.urth.org/Brocket.git"
+    },
+    "main": "Brocket",
+    "engines": {
+        "node": "~0.6.2"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "coffee-script": "1.1.3",
+        "tap": "*"
+    }
+}
