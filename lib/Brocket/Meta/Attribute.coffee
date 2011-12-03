@@ -11,25 +11,25 @@ class Attribute
 
     @reader    = args.reader    ? @name
     @writer    = do ->
-        if args.writer?
-            args.writer
-        else if @access == "rw"
-            @name
+      if args.writer?
+        args.writer
+      else if @access == "rw"
+        @name
 
     @predicate = args.predicate ? false
     @clearer   = args.clearer   ? false
 
     if Object.prototype.hasOwnProperty args, "default"
-        def = args.default
-        @default = def
-        @defaultFunc = -> def
+      def = args.default
+      @default = def
+      @defaultFunc = -> def
     else if Object.prototype.hasOwnProperty args, "builder"
-        builder = args.builder
-        @builder = builder
-        @defaultFunc = -> (instance) instance[builder].call instance
+      builder = args.builder
+      @builder = builder
+      @defaultFunc = -> (instance) instance[builder].call instance
 
     if @lazy? && ! @defaultFunc?
-        throw "You must provide a default or builder for lazy attributes"
+      throw "You must provide a default or builder for lazy attributes"
 
     @._buildMethods
 
@@ -43,29 +43,29 @@ class Attribute
     def = @._defaultFunc()
 
     attr.methods[ attr.reader ] = do ->
-        if attr.lazy?
-            ->
-                if ! Object.prototype.hasOwnProperty this name
-                    this[name] = def.call this
-                return this[name]
-        else
-            ->
-                return this[name]
+      if attr.lazy?
+        ->
+          if ! Object.prototype.hasOwnProperty this name
+            this[name] = def.call this
+          return this[name]
+      else
+        ->
+          return this[name]
 
     if attr.writer?
-        attr.methods[ attr.writer ] = (value) ->
-            this[name] = value
+      attr.methods[ attr.writer ] = (value) ->
+        this[name] = value
 
     if attr.clearer?
-        attr.methods[ attr.clearer ] = ->
-            delete this[name]
+      attr.methods[ attr.clearer ] = ->
+        delete this[name]
 
     if attr.predicate?
-        attr.methods[ attr.predicate ] = ->
-            Object.prototype.hasOwnProperty.call this name
+      attr.methods[ attr.predicate ] = ->
+        Object.prototype.hasOwnProperty.call this name
 
     for own name, method in attr.methods
-        attr.methods[name] = new Method name: name, body: method
+      attr.methods[name] = new Method name: name, body: method
 
     return
 
@@ -73,8 +73,8 @@ class Attribute
     name = @.name();
 
     if Object.prototype.hasOwnProperty.call params name
-        instance[name] = params[name]
-        return
+      instance[name] = params[name]
+      return
 
     return if @.isLazy() || ! @._defaultFunc()
 
