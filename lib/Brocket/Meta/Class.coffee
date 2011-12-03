@@ -1,6 +1,7 @@
-Attribute = require "../Attribute"
-Base = require "../Base"
-Method = require "../Method"
+Attribute = require "./Attribute"
+Base      = require "../Base"
+Method    = require "./Method"
+util      = require "util"
 
 class Class
   constructor: (args) ->
@@ -25,19 +26,25 @@ class Class
 
   addAttribute: (attribute) ->
     if attribute not instanceof Attribute
-      attribute = new @.attributeClass() attribute
+      aclass = @.attributeClass()
+      attribute = new aclass attribute
 
-    @.attributes[ attribute.name() ] = attribute
+    @.attributes()[ attribute.name() ] = attribute
     @.addMethod method for method in attribute.methods()
-    return
+
+    return attribute
 
   removeAttribute: (attribute) ->
     delete @.attributes[ attribute.name() ]
     @.removeMethod method for method in attribute.methods()
     return
 
+  attribute: (name) ->
+    return @.attributes()[name]
+
   hasAttribute: (name) ->
-    return @.attributes()[name]?
+    return true if @.attribute(name)?
+    return false
 
   addMethod: (method) ->
     if method not instanceof Method
