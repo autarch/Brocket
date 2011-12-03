@@ -11,7 +11,11 @@ class Attribute
     @_required  = args.required  ? false
     @_lazy      = args.lazy      ? false
 
-    @_reader    = args.reader    ? @_name
+    if args.reader?
+      @_reader = args.reader
+    else if @_access != "bare"
+      @_reader = @_name
+
     @_writer    = do ->
       if args.writer?
         args.writer
@@ -42,7 +46,7 @@ class Attribute
     return
 
   _validateAccess: (access) ->
-    return if access in [ "base", "ro", "rw" ]
+    return if access in [ "bare", "ro", "rw" ]
     throw 'The access value for an attribute must be "bare, "ro" or "rw", not "#{ access }"'
 
   _buildMethods: () ->
@@ -51,15 +55,16 @@ class Attribute
 
     methods = {}
 
-    methods[ @.reader() ] = do =>
-      if @.isLazy()
-        ->
-          if ! Object.prototype.hasOwnProperty this, name
-            this[name] = def.call this
-          return this[name]
-      else
-        ->
-          return this[name]
+    if @.hasReader()
+      methods[ @.reader() ] = do =>
+        if @.isLazy()
+          ->
+            if ! Object.prototype.hasOwnProperty this, name
+              this[name] = def.call this
+            return this[name]
+        else
+          ->
+            return this[name]
 
     if @.hasWriter()
       methods[ @.writer() ] = (value) ->

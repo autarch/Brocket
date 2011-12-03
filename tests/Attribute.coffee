@@ -21,3 +21,15 @@ test "attribute basics", (t) ->
   t.equivalent names, ["foo"], "methods returns a single method named foo"
 
   t.end()
+
+test "bare attribute", (t) ->
+  attr = new Attribute
+    name: "bare"
+    access: "bare"
+
+  t.equal attr.access(), "bare", "access() returns bare"
+
+  names = _.map attr.methods(), (attr) -> attr.name()
+  t.equivalent names, [], "a bare attribute has no methods"
+
+  t.end()
