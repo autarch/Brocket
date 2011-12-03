@@ -11,8 +11,9 @@ class Class
     @_attributes   = {}
     @_methods      = {}
     @_superclasses = []
-    @_attributeClass = Attribute
-    @_methodClass    = Method
+
+    @_attributeClass = args.attributeClass ? Attribute
+    @_methodClass    = args.methodClass    ? Method
 
     @.setSuperclasses [Base]
 
