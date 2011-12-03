@@ -7,6 +7,8 @@ Base = (require "../lib/Brocket/Base")
 metaclass = new Class name: "MyClass"
 
 test "metaclass", (t) ->
-    t.equal metaclass.name(), "MyClass", "name returns MyClass"
-    t.equivalent metaclass.superclasses(), [Base], "superclasses defaults to Base"
-    t.end()
+  t.equal metaclass.name(), "MyClass", "name returns MyClass"
+  t.equivalent metaclass.superclasses(), [Base], "superclasses defaults to Base"
+  metaclass.setSuperclasses([])
+  t.equivalent metaclass.superclasses(), [], "superclasses set to empty list"
+  t.end()
