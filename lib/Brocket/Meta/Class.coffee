@@ -44,8 +44,7 @@ class Class
     return @.attributes()[name]
 
   hasAttribute: (name) ->
-    return true if @.attribute(name)?
-    return false
+    return @.attribute(name)?
 
   addMethod: (method) ->
     if method not instanceof Method
