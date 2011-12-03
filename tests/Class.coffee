@@ -7,7 +7,7 @@ Class     = (require "../lib/Brocket/Meta/Class")
 
 metaclass = new Class name: "MyClass"
 
-test "metaclass", (t) ->
+test "metaclass basics", (t) ->
   t.equal metaclass.name(), "MyClass", "name returns MyClass"
 
   t.equivalent metaclass.superclasses(), [Base], "superclasses defaults to Base"
