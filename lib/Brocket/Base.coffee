@@ -1,5 +1,5 @@
 class Base
-    BUILDARGS: (params) ->
-        return params
+  BUILDARGS: (params) ->
+    return params
 
 module.exports = Base

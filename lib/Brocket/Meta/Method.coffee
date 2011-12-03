@@ -1,23 +1,23 @@
 class Method
-    constructor: (args) ->
-        @name   = args.name
-        @body   = args.body
-        @source = args.source
+  constructor: (args) ->
+    @name   = args.name
+    @body   = args.body
+    @source = args.source
 
-    attachToClass: (metaclass) ->
-        @.source metaclass
+  attachToClass: (metaclass) ->
+    @.source metaclass
 
-    detachFromClass: (metaclass) ->
-        @.source null
+  detachFromClass: (metaclass) ->
+    @.source null
 
-    name: ->
-        @name
+  name: ->
+    @name
 
-    body: ->
-        @body
+  body: ->
+    @body
 
-    source: (source) ->
-        @source = source if source?
-        return @source
+  source: (source) ->
+    @source = source if source?
+    return @source
 
 module.exports = Method
