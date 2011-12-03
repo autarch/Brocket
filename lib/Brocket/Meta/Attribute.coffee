@@ -29,6 +29,16 @@ class Attribute
 
     @_methods = {}
 
+    @._setDefaultProperties args
+
+    if @_lazy && ! @_defaultFunc?
+      throw "You must provide a default or builder for lazy attributes"
+
+    @._buildMethods()
+
+    return
+
+  _setDefaultProperties: (args) ->
     if Object.prototype.hasOwnProperty args, "default"
       def = args.default
       @_default = def
@@ -37,12 +47,6 @@ class Attribute
       builder = args.builder
       @_builder = builder
       @_defaultFunc = -> (instance) instance[builder].call instance
-
-    if @_lazy && ! @_defaultFunc?
-      throw "You must provide a default or builder for lazy attributes"
-
-    @._buildMethods()
-
     return
 
   _validateAccess: (access) ->
