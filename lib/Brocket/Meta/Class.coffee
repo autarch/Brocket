@@ -12,7 +12,7 @@ class Class
     @_methods      = {}
     @_superclasses = []
     @_attributeClass = Attribute
-    @_methodClass = Method
+    @_methodClass    = Method
 
     @.setSuperclasses [Base]
 

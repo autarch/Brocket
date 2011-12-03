@@ -1,4 +1,5 @@
 Method = require "./Method"
+_      = require "underscore"
 util   = require "util"
 
 class Attribute
@@ -20,6 +21,8 @@ class Attribute
     @_predicate = args.predicate ? null
     @_clearer   = args.clearer   ? null
 
+    @_methodClass = args.methodClass ? Method
+
     @_methods = {}
 
     if Object.prototype.hasOwnProperty args, "default"
@@ -39,8 +42,8 @@ class Attribute
     return
 
   _validateAccess: (access) ->
-    return if access in [ "ro", "rw" ]
-    throw "The access value for an attribute must be 'ro' or 'rw', not '#{ access }'"
+    return if access in [ "base", "ro", "rw" ]
+    throw 'The access value for an attribute must be "bare, "ro" or "rw", not "#{ access }"'
 
   _buildMethods: () ->
     name = @.name()
@@ -70,8 +73,9 @@ class Attribute
       methods[ @.predicate() ] = ->
         Object.prototype.hasOwnProperty.call this, name
 
-    for own name, method in methods
-      @.methods()[name] = new Method name: name, body: method
+    mclass = @.methodClass()
+    for own name, method of methods
+      @._methodsObj()[name] = new mclass name: name, body: method
 
     return
 
@@ -90,6 +94,12 @@ class Attribute
 
   name: ->
     @_name
+
+  access: ->
+    @_access
+
+  required: ->
+    @_required
 
   isLazy: ->
     @_lazy
@@ -118,8 +128,14 @@ class Attribute
   hasClearer: ->
     @.clearer()?
 
-  methods: ->
+  methodClass: ->
+    @._methodClass
+
+  _methodsObj: ->
     @_methods
+
+  methods: ->
+    _.values @._methodsObj()
 
   _defaultFunc: ->
     @defaultFunc

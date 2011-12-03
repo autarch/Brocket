@@ -1,8 +1,8 @@
 class Method
   constructor: (args) ->
-    @name   = args.name
-    @body   = args.body
-    @source = args.source
+    @_name   = args.name
+    @_body   = args.body
+    @_source = args.source
 
   attachToClass: (metaclass) ->
     @.source metaclass
@@ -11,13 +11,13 @@ class Method
     @.source null
 
   name: ->
-    @name
+    @_name
 
   body: ->
-    @body
+    @_body
 
   source: (source) ->
-    @source = source if source?
-    return @source
+    @_source = source if source?
+    return @_source
 
 module.exports = Method
