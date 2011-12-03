@@ -1,4 +1,4 @@
-Method = require "Method"
+Method = require "./Method"
 
 class Attribute
   constructor: (args) ->
@@ -19,11 +19,11 @@ class Attribute
     @predicate = args.predicate ? false
     @clearer   = args.clearer   ? false
 
-    if Object.prototype.hasOwnProperty args "default"
+    if Object.prototype.hasOwnProperty args, "default"
         def = args.default
         @default = def
         @defaultFunc = -> def
-    else if Object.prototype.hasOwnProperty args "builder"
+    else if Object.prototype.hasOwnProperty args, "builder"
         builder = args.builder
         @builder = builder
         @defaultFunc = -> (instance) instance[builder].call instance
