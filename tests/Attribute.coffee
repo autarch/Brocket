@@ -22,6 +22,18 @@ test "attribute basics", (t) ->
 
   t.end()
 
+test "bad access", (t) ->
+  try
+    new Attribute name: "bad", access: "bad"
+  catch e
+    error = e
+
+  t.equal error,
+    'The access value for an attribute must be "bare, "ro" or "rw", not "bad"',
+    "bad access throws an error"
+
+  t.end()
+
 test "bare attribute", (t) ->
   attr = new Attribute
     name: "bare"
