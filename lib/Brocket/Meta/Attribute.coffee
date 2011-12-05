@@ -40,14 +40,14 @@ class Attribute
     if Object.prototype.hasOwnProperty args, "default"
       def = args.default
       @_default = def
-      @_defaultFunc = -> def
+      @__defaultFunc = -> def
     else if Object.prototype.hasOwnProperty args, "builder"
       builder = args.builder
       @_builder = builder
-      @_defaultFunc = -> (instance) instance[builder].call instance
+      @__defaultFunc = (instance) ->  instance[builder].call instance
 
-    if @_lazy && ! @_defaultFunc?
-      throw "You must provide a default or builder for lazy attributes"
+    if @_lazy && !@__defaultFunc?
+      throw "You must provide a default or builder for a lazy attribute"
 
     return
 
@@ -154,6 +154,6 @@ class Attribute
     _.values @._methodsObj()
 
   _defaultFunc: ->
-    @defaultFunc
+    @__defaultFunc
 
 module.exports = Attribute

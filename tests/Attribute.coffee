@@ -45,3 +45,15 @@ test "bare attribute", (t) ->
   t.equivalent names, [], "a bare attribute has no methods"
 
   t.end()
+
+test "bad lazy", (t) ->
+  try
+    new Attribute name: "bad", lazy: true
+  catch e
+    error = e
+
+  t.equal error,
+    "You must provide a default or builder for a lazy attribute",
+    "a lazy attribute must have a default"
+
+  t.end()
