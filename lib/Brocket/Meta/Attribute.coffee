@@ -1,10 +1,11 @@
-Method = require "./Method"
 _      = require "underscore"
+Method = require "./Method"
 util   = require "util"
 
 class Attribute
   constructor: (args) ->
     @_name      = args.name
+
     @_access    = args.access    ? "ro"
     @._validateAccess @_access
 
@@ -58,34 +59,39 @@ class Attribute
     name = @.name()
     def = @._defaultFunc()
 
-    methods = {}
+    methods = @._methodsObj()
+    mclass  = @.methodClass()
 
     if @.hasReader()
-      methods[ @.reader() ] = do =>
-        if @.isLazy()
-          ->
-            if ! Object.prototype.hasOwnProperty this, name
-              this[name] = def.call this
-            return this[name]
-        else
-          ->
-            return this[name]
+      if @.reader() instanceof Method
+        methods[ @.reader().name() ] = @.reader()
+      else
+        body =
+          if @.isLazy()
+            ->
+              if ! Object.prototype.hasOwnProperty this, name
+                this[name] = def.call this
+              return this[name]
+          else
+            ->
+              return this[name]
+        methods[ @.reader() ] = new mclass name: @.reader(), body: body
 
     if @.hasWriter()
-      methods[ @.writer() ] = (value) ->
-        this[name] = value
+      if @.writer() instanceof Method
+        methods[ @.writer().name() ] = @.writer()
+      else
+        body = (value) ->
+          this[name] = value
+      methods[ @.writer() ] = new mclass name: @.writer(), body: body
 
     if @.hasClearer()
-      methods[ @.clearer() ] = ->
-        delete this[name]
+      body = -> delete this[name]
+      methods[ @.clearer() ] = new mclass name: @.clearer(), body: body
 
     if @.hasPredicate()
-      methods[ @.predicate() ] = ->
-        Object.prototype.hasOwnProperty.call this, name
-
-    mclass = @.methodClass()
-    for own name, method of methods
-      @._methodsObj()[name] = new mclass name: name, body: method
+      body = -> Object.prototype.hasOwnProperty.call this, name
+      methods[ @.predicate() ] = new mclass name: @.predicate(), body: body
 
     return
 
