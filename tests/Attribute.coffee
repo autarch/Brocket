@@ -17,7 +17,7 @@ test "attribute basics", (t) ->
   t.ok ( ! attr.hasPredicate() ), "attr has no predicate"
   t.ok ( ! attr.hasClearer() ), "attr has no clearer"
 
-  names = _.map attr.methods(), (attr) -> attr.name()
+  names = _.map attr.methods(), (method) -> method.name()
   t.equivalent names, ["foo"], "methods returns a single method named foo"
 
   t.end()
@@ -41,7 +41,7 @@ test "bare attribute", (t) ->
 
   t.equal attr.access(), "bare", "access() returns bare"
 
-  names = _.map attr.methods(), (attr) -> attr.name()
+  names = _.map attr.methods(), (method) -> method.name()
   t.equivalent names, [], "a bare attribute has no methods"
 
   t.end()
