@@ -7,7 +7,7 @@
         "type": "git",
         "url": "git://git.urth.org/Brocket.git"
     },
-    "main": "Brocket",
+    "main": "./lib/Brocket.js",
     "engines": {
         "node": "~0.6.2"
     },
