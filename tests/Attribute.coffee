@@ -5,6 +5,7 @@ util = require "util"
 Attribute = require "../lib/Brocket/Meta/Attribute";
 Base      = (require "../lib/Brocket/Base")
 Class     = (require "../lib/Brocket/Meta/Class")
+Method    = (require "../lib/Brocket/Meta/Method")
 
 test "attribute basics", (t) ->
   attr1 = new Attribute name: "foo"
@@ -69,5 +70,16 @@ test "bad lazy", (t) ->
   t.equal error,
     "You must provide a default or builder for a lazy attribute",
     "a lazy attribute must have a default"
+
+  t.end()
+
+test "method subclass", (t) ->
+  class myMethod extends Method
+
+  attr = new Attribute name: "foo", methodClass: myMethod
+
+  method = attr.methods()[0]
+  t.ok method, "attribute has at least one method"
+  t.ok method instanceof myMethod, "attribute's method is a myMethod"
 
   t.end()
