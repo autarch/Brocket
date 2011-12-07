@@ -36,7 +36,7 @@ class Class
     return attribute
 
   removeAttribute: (attribute) ->
-    delete @.attributes[ attribute.name() ]
+    delete @.attributes()[ attribute.name() ]
     @.removeMethod method for method in attribute.methods()
     return
 
@@ -48,21 +48,31 @@ class Class
 
   addMethod: (method) ->
     if method not instanceof Method
-      method = new @.methodClass() method
+      mclass = @.methodClass()
+      method = new mclass method
 
     @.methods()[ method.name() ] = method
     method.attachToClass this
-    @.class()[ method.name() ] = method.body()
+    @.class().prototype[ method.name() ] = method.body()
     return
 
   removeMethod: (method) ->
     delete @.methods()[ method.name() ]
     method.detachFromClass this
-    delete @.class()[ method.name() ]
+    delete @.class().prototype[ method.name() ]
     return
 
   hasMethod: (name) ->
     return @.methods()[name]?
+
+  methodNamed: (name) ->
+    methods = @.methods()
+    return methods[name] if methods[name]?
+
+    if @.class().prototype[name]? && typeof @.class().prototype[name] == "function"
+      @.addMethod name: name, body: @.class().prototype[name]
+
+    return methods[name]
 
   _checkMetaclassCompatibility: (klass) ->
     return
