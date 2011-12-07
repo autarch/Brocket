@@ -42,7 +42,7 @@ test "metaclass basics", (t) ->
   has = metaclass.hasMethod "attr1"
   t.ok !has, "removeAttribute removed method named attr1"
 
-  metaclass.class().prototype.foo = () ->
+  metaclass.class().prototype.foo = ->
   method = metaclass.methodNamed "foo"
   t.ok method, "methodNamed finds foo method"
   t.ok method instanceof Method, "methodNamed always returns a Method object"
