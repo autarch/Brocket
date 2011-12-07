@@ -5,6 +5,7 @@ util   = require "util"
 class Attribute
   constructor: (args) ->
     @_name      = args.name
+    @_slotName  = "  __#{ @_name }__  "
 
     @_access    = args.access    ? "ro"
     @._validateAccess @_access
@@ -37,14 +38,14 @@ class Attribute
     return
 
   _setDefaultProperties: (args) ->
-    if Object.prototype.hasOwnProperty args, "default"
+    if Object.prototype.hasOwnProperty.call args, "default"
       def = args.default
       @_default = def
       @__defaultFunc = -> def
-    else if Object.prototype.hasOwnProperty args, "builder"
+    else if Object.prototype.hasOwnProperty.call args, "builder"
       builder = args.builder
       @_builder = builder
-      @__defaultFunc = (instance) ->  instance[builder].call instance
+      @__defaultFunc = (instance) -> instance[builder].call instance
 
     if @_lazy && !@__defaultFunc?
       throw "You must provide a default or builder for a lazy attribute"
@@ -56,8 +57,9 @@ class Attribute
     throw "The access value for an attribute must be \"bare, \"ro\" or \"rw\", not \"#{access}\""
 
   _buildMethods: () ->
-    name = @.name()
-    def = @._defaultFunc()
+    name     = @.name()
+    slotName = @.slotName()
+    def      = @._defaultFunc()
 
     methods = @._methodsObj()
     mclass  = @.methodClass()
@@ -69,12 +71,12 @@ class Attribute
         body =
           if @.isLazy()
             ->
-              if ! Object.prototype.hasOwnProperty this, name
-                this[name] = def.call this
-              return this[name]
+              if ! Object.prototype.hasOwnProperty.call this, name
+                this[slotName] = def.call this
+              return this[slotName]
           else
             ->
-              return this[name]
+              return this[slotName]
         methods[ @.reader() ] = new mclass name: @.reader(), body: body
 
     if @.hasWriter()
@@ -82,15 +84,15 @@ class Attribute
         methods[ @.writer().name() ] = @.writer()
       else
         body = (value) ->
-          this[name] = value
+          this[slotName] = value
       methods[ @.writer() ] = new mclass name: @.writer(), body: body
 
     if @.hasClearer()
-      body = -> delete this[name]
+      body = -> delete this[slotName]
       methods[ @.clearer() ] = new mclass name: @.clearer(), body: body
 
     if @.hasPredicate()
-      body = -> Object.prototype.hasOwnProperty.call this, name
+      body = -> Object.prototype.hasOwnProperty.call this, slotName
       methods[ @.predicate() ] = new mclass name: @.predicate(), body: body
 
     return
@@ -98,18 +100,21 @@ class Attribute
   initializeInstanceSlot: (instance, params) ->
     name = @.name();
 
-    if Object.prototype.hasOwnProperty.call params, name
-      instance[name] = params[name]
+    if params? && typeof params == "object" && Object.prototype.hasOwnProperty.call params, name
+      instance[ @.slotName() ] = params[name]
       return
 
     return if @.isLazy() || ! @._defaultFunc()
 
-    instance[name] = @.defaultFunc().call instance
+    instance[slotName] = @.defaultFunc().call instance
 
     return
 
   name: ->
     @_name
+
+  slotName: ->
+    @_slotName
 
   access: ->
     @_access

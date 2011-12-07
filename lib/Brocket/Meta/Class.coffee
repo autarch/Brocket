@@ -1,5 +1,5 @@
+_         = require "underscore"
 Attribute = require "./Attribute"
-Base      = require "../Base"
 Method    = require "./Method"
 util      = require "util"
 
@@ -15,15 +15,50 @@ class Class
     @_attributeClass = args.attributeClass ? Attribute
     @_methodClass    = args.methodClass    ? Method
 
-    @.setSuperclasses [Base]
+    @_class = @._makeClass args._class
 
-    @_class = (params...) ->
-        this.meta.constructInstance params
-    @_class.meta = @
+    return
+
+  _makeClass: (klass) ->
+    if !klass
+      klass = (params...) ->
+          @.constructor.meta().constructInstance @, params
+
+    klass.meta = => @
+
+    klass.prototype._super = ->
+      try
+        throw new Error
+      catch e
+        error = e
+
+      meta = @.constructor.meta()
+      caller = meta._callerFromError error, "_super"
+
+      for supermeta in meta.superclasses()
+        superclass = supermeta.class()
+        if Object.prototype.hasOwnProperty.call superclass.prototype, caller
+          return superclass.prototype[caller].apply @, arguments
+
+      supernames = _.map meta.superclasses(), (s) -> s.name()
+
+      throw Error "No #{caller} method found in any superclasses of #{ meta.name() } - superclasses are #{ supernames.join(',') }"
+
+    return klass
 
   setSuperclasses: (supers) ->
     @_superclasses = supers
-    @._checkMetaclassCompatibility
+
+    @._checkMetaclassCompatibility()
+
+    for meta in supers
+      for own name, prop of meta.class().prototype
+        if /^_super$/.test(name)
+          continue
+
+        @.class().prototype[name] = prop
+
+    return
 
   addAttribute: (attribute) ->
     if attribute not instanceof Attribute
@@ -77,13 +112,31 @@ class Class
   _checkMetaclassCompatibility: (klass) ->
     return
 
-  constructInstance: (params) ->
-    params = this.class().BUILDARGS params
+  constructInstance: (instance, params) ->
+    params =
+      if instance.BUILDARGS?
+        instance.BUILDARGS params
+      else
+        params
 
-    instance = new this.class()
     for own name, attr of @.attributes()
-        attr.initializeInstanceSlot instance params
+      attr.initializeInstanceSlot instance, params
+
+    instance.BUILDALL params if instance.BUILDALL?
+
     return instance
+
+  _callerFromError: (error, ignoreBefore) ->
+    re = new RegExp "\\.#{ignoreBefore} \\("
+    for line in error.stack.split /\n+/
+      if re.test(line)
+        next = true
+        continue
+      else
+        continue unless next
+        return line.match( /\.(\w+) \(/ )[1]
+
+    return
 
   name: ->
     @_name
