@@ -12,9 +12,13 @@ test "metaclass basics", (t) ->
   t.equal metaclass.name(), "MyClass", "name returns MyClass"
 
   t.equivalent metaclass.superclasses(), [], "superclasses defaults to empty list"
-  metaclass.setSuperclasses [ Base.meta() ]
+  metaclass.setSuperclasses Base.meta()
   t.equivalent metaclass.superclasses(), [ Base.meta() ],
     "superclasses includes Base after setSuperclasses"
+
+  metaclass.setSuperclasses Base
+  t.equivalent metaclass.superclasses(), [ Base.meta() ],
+    "setSuperclasses accepts a class object with a meta() method"
 
   t.equal metaclass.class().prototype["BUILDARGS"],
     Base.prototype.BUILDARGS,
@@ -59,7 +63,7 @@ test "metaclass basics", (t) ->
 
 test "constructInstance", (t) ->
   metaclass = new Class name: "MyClass"
-  metaclass.setSuperclasses [ Base.meta() ]
+  metaclass.setSuperclasses Base.meta()
 
   metaclass.addAttribute name: "foo"
   metaclass.addAttribute name: "bar"
@@ -84,5 +88,22 @@ test "constructInstance", (t) ->
   t.ok instance, "constructInstance returns something when given params"
   t.equal instance.foo(), 12, "foo param is set to 12"
   t.equal instance.bar(), 42, "bar param is set to 42"
+
+  t.end()
+
+test "methodInheritance", (t) ->
+  class Foo
+    method: -> 42
+
+  class Bar
+    method: -> 84
+
+  metaclass = new Class name: "Bar", _class: Bar
+  metaclass.setSuperclasses Foo
+  t.equivalent metaclass.superclasses(), [ Foo.meta() ],
+    "can set superclass with a class and it is turned into a metaclass"
+
+  bar = new Bar
+  t.equal bar.method(), 84, "methods from superclass do not overwrite class's own methods"
 
   t.end()

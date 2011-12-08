@@ -47,14 +47,26 @@ class Class
     return klass
 
   setSuperclasses: (supers) ->
-    @_superclasses = supers
+    supers = [supers] unless supers instanceof Array
+
+    constructor = @.constructor
+
+    supers = _.map supers, (klass) ->
+      return klass if klass instanceof Class
+      return klass.meta() if klass.meta?
+      return unless typeof klass == "function"
+
+      name = klass.toString().match( /function\s*(\w+)/ )[1]
+      return new constructor ( name: name, _class: klass )
+
+    @_superclasses = _.filter supers, (klass) -> klass?
 
     @._checkMetaclassCompatibility()
 
     for meta in supers
       for own name, prop of meta.class().prototype
-        if /^_super$/.test(name)
-          continue
+        continue if /^_super$/.test(name)
+        continue if @.class().prototype[name]?
 
         @.class().prototype[name] = prop
 
