@@ -54,6 +54,7 @@ class Class
     supers = _.map supers, (klass) ->
       return klass if klass instanceof Class
       return klass.meta() if klass.meta?
+      # XXX - throw an error here instead?
       return unless typeof klass == "function"
 
       name = klass.toString().match( /function\s*(\w+)/ )[1]
