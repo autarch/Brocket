@@ -59,6 +59,15 @@ test "metaclass basics", (t) ->
   t.equal metaclass.class().meta(), metaclass,
     "underlying class's meta() method returns metaclass object"
 
+  class Foo
+
+  metaclass = Class.newFromClass Foo
+  t.equal metaclass.name(), "Foo", "newFromClass figured out class name correctly"
+
+  func = ->
+  metaclass = Class.newFromClass func
+  t.equal metaclass.name(), "__Anon__", "newFromClass handles anon classes"
+
   t.end()
 
 test "constructInstance", (t) ->
@@ -98,7 +107,7 @@ test "methodInheritance", (t) ->
   class Bar
     method: -> 84
 
-  metaclass = new Class name: "Bar", _class: Bar
+  metaclass = Class.newFromClass Bar
   metaclass.setSuperclasses Foo
   t.equivalent metaclass.superclasses(), [ Foo.meta() ],
     "can set superclass with a class and it is turned into a metaclass"

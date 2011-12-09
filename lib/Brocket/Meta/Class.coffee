@@ -49,16 +49,13 @@ class Class
   setSuperclasses: (supers) ->
     supers = [supers] unless supers instanceof Array
 
-    constructor = @.constructor
-
-    supers = _.map supers, (klass) ->
+    supers = _.map supers, (klass) =>
       return klass if klass instanceof Class
       return klass.meta() if klass.meta?
       # XXX - throw an error here instead?
       return unless typeof klass == "function"
 
-      name = klass.toString().match( /function\s*(\w+)/ )[1]
-      return new constructor ( name: name, _class: klass )
+      return @._newFromClass klass
 
     @_superclasses = _.filter supers, (klass) -> klass?
 
@@ -72,6 +69,18 @@ class Class
         @.class().prototype[name] = prop
 
     return
+
+  @newFromClass = (klass) ->
+    name =
+      if matches = klass.toString().match( /function\s*(\w+)/ )
+        matches[1]
+      else
+        "__Anon__"
+
+    return new @ ( name: name, _class: klass )
+
+  _newFromClass: (klass) ->
+    return @.constructor.newFromClass klass
 
   addAttribute: (attribute) ->
     if attribute not instanceof Attribute
