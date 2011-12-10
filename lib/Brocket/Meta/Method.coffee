@@ -3,12 +3,17 @@ class Method
     @_name   = args.name
     @_body   = args.body
     @_source = args.source
+    @_associatedClass = args.metaclass
+
+  clone: ->
+    constructor = @.constructor
+    return new constructor name: @.name(), body: @.body(), source: @.source()
 
   attachToClass: (metaclass) ->
-    @.source metaclass
+    @.associatedClass metaclass
 
   detachFromClass: (metaclass) ->
-    @._clearSource()
+    @._clearAssociatedClass()
 
   name: ->
     @_name
@@ -20,7 +25,11 @@ class Method
     @_source = source if source?
     return @_source
 
-  _clearSource: ->
-    delete @_source
+  associatedClass: (metaclass) ->
+    @_associatedClass = metaclass if metaclass?
+    return @_metaclass
+
+  _clearAssociatedClass: ->
+    delete @_associatedClass
 
 module.exports = Method
