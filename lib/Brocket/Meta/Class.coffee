@@ -46,6 +46,18 @@ class Class
 
     return klass
 
+  @newFromClass = (klass) ->
+    name =
+      if matches = klass.toString().match( /function\s*(\w+)/ )
+        matches[1]
+      else
+        "__Anon__"
+
+    return new @ ( name: name, _class: klass )
+
+  _newFromClass: (klass) ->
+    return @.constructor.newFromClass klass
+
   setSuperclasses: (supers) ->
     supers = [supers] unless supers instanceof Array
 
@@ -69,18 +81,6 @@ class Class
         @.class().prototype[name] = prop
 
     return
-
-  @newFromClass = (klass) ->
-    name =
-      if matches = klass.toString().match( /function\s*(\w+)/ )
-        matches[1]
-      else
-        "__Anon__"
-
-    return new @ ( name: name, _class: klass )
-
-  _newFromClass: (klass) ->
-    return @.constructor.newFromClass klass
 
   addAttribute: (attribute) ->
     if attribute not instanceof Attribute
