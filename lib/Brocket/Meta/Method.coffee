@@ -8,7 +8,7 @@ class Method
     @.source metaclass
 
   detachFromClass: (metaclass) ->
-    @.source null
+    @._clearSource()
 
   name: ->
     @_name
@@ -19,5 +19,8 @@ class Method
   source: (source) ->
     @_source = source if source?
     return @_source
+
+  _clearSource: ->
+    delete @_source
 
 module.exports = Method
