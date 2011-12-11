@@ -47,7 +47,8 @@ class Attribute
     else if Object.prototype.hasOwnProperty.call args, "builder"
       builder = args.builder
       @_builder = builder
-      @__defaultFunc = (instance) -> instance[builder].call instance
+      # XXX - need some sort of error handling
+      @__defaultFunc = (instance) -> @[builder].call instance
 
     if @_lazy && !@__defaultFunc?
       throw "You must provide a default or builder for a lazy attribute"
