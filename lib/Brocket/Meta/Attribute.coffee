@@ -129,7 +129,7 @@ class Attribute
 
     return if @.isLazy() || ! @._defaultFunc()
 
-    instance[slotName] = @.defaultFunc().call instance
+    instance[ @.slotName() ] = @._defaultFunc().call instance
 
     return
 
