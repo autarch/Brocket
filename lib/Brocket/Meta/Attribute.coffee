@@ -85,6 +85,7 @@ class Attribute
                 this[slotName] = arguments[0]
 
               return this[slotName]
+        methods[ @.accessor() ] = new mclass name: @.accessor(), body: body
 
     if @.hasReader()
       if @.reader() instanceof Method
