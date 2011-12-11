@@ -1,4 +1,4 @@
-test = (require "tap").test
+test = (require "tapr").tap.test
 util = require "util"
 
 Base    = require("../lib/Brocket/Base");
@@ -7,14 +7,47 @@ Class   = require("../lib/Brocket/Meta/Class");
 
 test "Brocket sugar", (t) ->
   Foo = Brocket.makeClass("Foo");
+  fooMeta = Foo.meta()
 
   t.equal typeof Foo, "function", "makeClass returns a function"
   t.equal typeof Foo.has, "function", "class has a has() function"
-  t.ok Foo.meta() instanceof Class, "Foo.meta() returns a metaclass"
-  t.equivalent Foo.meta().superclasses(), [ Base.meta() ], "superclasses is Base"
+  t.ok fooMeta instanceof Class, "fooMeta returns a fooMeta"
+  t.equivalent fooMeta.superclasses(), [ Base.meta() ], "superclasses is Base"
 
-  t.equivalent Foo.meta().attributes(), {}, "class has no attributes"
+  t.equivalent fooMeta.attributes(), {}, "class has no attributes"
   for name in [ "BUILDARGS", "BUILDALL" ]
-    t.ok (Foo.meta().hasMethod name), "class has #{name} method"
+    t.ok (fooMeta.hasMethod name), "class has #{name} method"
+
+  Foo.has "foo", access: "rw", default: 42
+
+  t.ok (fooMeta.hasAttribute "foo"), "added a foo attribute"
+  fooAttr = fooMeta.attribute "foo"
+  t.equal fooAttr.access(), "rw", "access is read-write"
+  t.ok (fooMeta.hasMethod "foo"), "foo attribute created a foo method"
+
+  Foo.method "m1", -> return "m1"
+  Foo.prototype.m2 = -> return "m2"
+
+  t.ok (fooMeta.hasMethod "m1"), "foo has m1 method"
+  t.ok (fooMeta.hasMethod "m2"), "foo has m2 method"
+
+  fooObj = new Foo
+
+  t.equal fooObj.m1(), "m1", "m1 method returns expected value"
+  t.equal fooObj.m2(), "m2", "m2 method returns expected value"
+  t.equal fooObj.foo(), 42, "foo accessor returns default value"
+
+  Foo.finalize()
+  for func in [ "has", "method", "subclasses", "consumes", "finalize" ]
+    t.ok !Foo[func], "finalize removes the #{func} function from the class"
+
+  Bar = Brocket.makeClass("Bar")
+  Bar.has "bar", builder: "_buildBar"
+  Bar.method "_buildBar", -> 84
+  Bar.subclasses Foo
+
+  barMeta = Bar.meta()
+
+  t.equivalent barMeta.superclasses(), [ fooMeta ], "subclasses sets superclasses as expected"
 
   t.end()
