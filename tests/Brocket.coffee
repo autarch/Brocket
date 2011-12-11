@@ -46,8 +46,22 @@ test "Brocket sugar", (t) ->
   Bar.method "_buildBar", -> 84
   Bar.subclasses Foo
 
+  called = false
+  Bar.has "lazy", builder: "_buildLazy", lazy: true
+  Bar.method "_buildLazy", ->
+    called = true
+    return 99
+
   barMeta = Bar.meta()
 
   t.equivalent barMeta.superclasses(), [ fooMeta ], "subclasses sets superclasses as expected"
+
+  barObj = new Bar
+  t.equal barObj.m1(), "m1", "Bar class inherits m1 method"
+  t.equal barObj.m2(), "m2", "Bar class inherits m2 method"
+  t.equal barObj.bar(), 84, "bar method gets default from builder"
+  t.ok !called, "builder for lazy attribute has not been called yet"
+  t.equal barObj.lazy(), 99, "lazy attr defaults to 99"
+  t.ok called, "builder for lazy attribute has was called"
 
   t.end()
