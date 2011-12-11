@@ -64,4 +64,17 @@ test "Brocket sugar", (t) ->
   t.equal barObj.lazy(), 99, "lazy attr defaults to 99"
   t.ok called, "builder for lazy attribute has was called"
 
+  # This is just testing an alternate compact syntax for class definition
+  Baz =
+    (->
+      @has "baz", access: "ro"
+      @subclasses "Baz"
+      @method "m3", -> 100
+      @method "m4", -> 101
+      @
+    ).call Brocket.makeClass "Baz"
+
+  bazObj = new Baz
+  t.equal bazObj.m3(), 100, "m3 method returns expected value"
+
   t.end()
