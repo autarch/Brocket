@@ -13,16 +13,18 @@ class Attribute
     @_required  = args.required  ? false
     @_lazy      = args.lazy      ? false
 
-    if args.reader?
-      @_reader = args.reader
-    else if @_access != "bare"
-      @_reader = @_name
+    if args.accessor
+      @_accessor = args.accessor
+    else if @_access == "rw" && ! args.reader? && ! args.writer
+      @_accessor = @_name
 
-    @_writer    = do ->
-      if args.writer?
-        args.writer
-      else if @_access == "rw"
-        @_name
+    if !@_accessor?
+      if args.reader?
+        @_reader = args.reader
+      else if @_access == "ro"
+        @_reader = @_name
+
+      @_writer = args.writer if args.writer?
 
     @_predicate = args.predicate ? null
     @_clearer   = args.clearer   ? null
@@ -63,6 +65,26 @@ class Attribute
 
     methods = @._methodsObj()
     mclass  = @.methodClass()
+
+    if @.hasAccessor()
+      if @.accessor() instanceof Method
+        methods[ @.accessor().name() ] = @.accessor()
+      else
+        body =
+          if @.isLazy()
+            ->
+              if arguments.length > 0
+                this[slotName] = arguments[0]
+
+              if ! Object.prototype.hasOwnProperty.call this, name
+                this[slotName] = def.call this
+              return this[slotName]
+          else
+            ->
+              if arguments.length > 0
+                this[slotName] = arguments[0]
+
+              return this[slotName]
 
     if @.hasReader()
       if @.reader() instanceof Method
@@ -136,6 +158,12 @@ class Attribute
 
   hasWriter: ->
     return @.writer()?
+
+  accessor: ->
+    @_accessor
+
+  hasAccessor: ->
+    return @.accessor()?
 
   predicate: ->
     @_predicate
