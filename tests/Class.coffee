@@ -89,7 +89,7 @@ test "constructInstance", (t) ->
   t.equal instance.foo(), 42, "foo param is set to 42"
 
   metaclass.class().prototype.BUILDARGS = (params) ->
-    params = @._super params
+    params = @_super params
     params.bar = 42
     return params
 

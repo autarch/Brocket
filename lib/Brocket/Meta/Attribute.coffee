@@ -8,7 +8,7 @@ class Attribute
     @_slotName  = "  __#{ @_name }__  "
 
     @_access    = args.access    ? "ro"
-    @._validateAccess @_access
+    @_validateAccess @_access
 
     @_required  = args.required  ? false
     @_lazy      = args.lazy      ? false
@@ -33,9 +33,9 @@ class Attribute
 
     @_methods = {}
 
-    @._setDefaultProperties args
+    @_setDefaultProperties args
 
-    @._buildMethods()
+    @_buildMethods()
 
     return
 
@@ -60,19 +60,19 @@ class Attribute
     throw "The access value for an attribute must be \"bare, \"ro\" or \"rw\", not \"#{access}\""
 
   _buildMethods: () ->
-    name     = @.name()
-    slotName = @.slotName()
-    def      = @._defaultFunc()
+    name     = @name()
+    slotName = @slotName()
+    def      = @_defaultFunc()
 
-    methods = @._methodsObj()
-    mclass  = @.methodClass()
+    methods = @_methodsObj()
+    mclass  = @methodClass()
 
-    if @.hasAccessor()
-      if @.accessor() instanceof Method
-        methods[ @.accessor().name() ] = @.accessor()
+    if @hasAccessor()
+      if @accessor() instanceof Method
+        methods[ @accessor().name() ] = @accessor()
       else
         body =
-          if @.isLazy()
+          if @isLazy()
             ->
               if arguments.length > 0
                 this[slotName] = arguments[0]
@@ -86,14 +86,14 @@ class Attribute
                 this[slotName] = arguments[0]
 
               return this[slotName]
-        methods[ @.accessor() ] = new mclass name: @.accessor(), body: body
+        methods[ @accessor() ] = new mclass name: @accessor(), body: body
 
-    if @.hasReader()
-      if @.reader() instanceof Method
-        methods[ @.reader().name() ] = @.reader()
+    if @hasReader()
+      if @reader() instanceof Method
+        methods[ @reader().name() ] = @reader()
       else
         body =
-          if @.isLazy()
+          if @isLazy()
             ->
               if ! Object.prototype.hasOwnProperty.call this, name
                 this[slotName] = def.call this
@@ -101,36 +101,36 @@ class Attribute
           else
             ->
               return this[slotName]
-        methods[ @.reader() ] = new mclass name: @.reader(), body: body
+        methods[ @reader() ] = new mclass name: @reader(), body: body
 
-    if @.hasWriter()
-      if @.writer() instanceof Method
-        methods[ @.writer().name() ] = @.writer()
+    if @hasWriter()
+      if @writer() instanceof Method
+        methods[ @writer().name() ] = @writer()
       else
         body = (value) ->
           this[slotName] = value
-      methods[ @.writer() ] = new mclass name: @.writer(), body: body
+      methods[ @writer() ] = new mclass name: @writer(), body: body
 
-    if @.hasClearer()
+    if @hasClearer()
       body = -> delete this[slotName]
-      methods[ @.clearer() ] = new mclass name: @.clearer(), body: body
+      methods[ @clearer() ] = new mclass name: @clearer(), body: body
 
-    if @.hasPredicate()
+    if @hasPredicate()
       body = -> Object.prototype.hasOwnProperty.call this, slotName
-      methods[ @.predicate() ] = new mclass name: @.predicate(), body: body
+      methods[ @predicate() ] = new mclass name: @predicate(), body: body
 
     return
 
   initializeInstanceSlot: (instance, params) ->
-    name = @.name();
+    name = @name();
 
     if params? && typeof params == "object" && Object.prototype.hasOwnProperty.call params, name
-      instance[ @.slotName() ] = params[name]
+      instance[ @slotName() ] = params[name]
       return
 
-    return if @.isLazy() || ! @._defaultFunc()
+    return if @isLazy() || ! @_defaultFunc()
 
-    instance[ @.slotName() ] = @._defaultFunc().call instance
+    instance[ @slotName() ] = @_defaultFunc().call instance
 
     return
 
@@ -153,40 +153,40 @@ class Attribute
     @_reader
 
   hasReader: ->
-    @.reader()?
+    @reader()?
 
   writer: ->
     @_writer
 
   hasWriter: ->
-    return @.writer()?
+    return @writer()?
 
   accessor: ->
     @_accessor
 
   hasAccessor: ->
-    return @.accessor()?
+    return @accessor()?
 
   predicate: ->
     @_predicate
 
   hasPredicate: ->
-    @.predicate()?
+    @predicate()?
 
   clearer: ->
     @_clearer
 
   hasClearer: ->
-    @.clearer()?
+    @clearer()?
 
   methodClass: ->
-    @._methodClass
+    @_methodClass
 
   _methodsObj: ->
     @_methods
 
   methods: ->
-    _.values @._methodsObj()
+    _.values @_methodsObj()
 
   _defaultFunc: ->
     @__defaultFunc

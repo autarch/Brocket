@@ -15,14 +15,14 @@ class Class
     @_attributeClass = args.attributeClass ? Attribute
     @_methodClass    = args.methodClass    ? Method
 
-    @_class = @._makeClass args._class
+    @_class = @_makeClass args._class
 
     return
 
   _makeClass: (klass) ->
     if !klass
       klass = (params...) ->
-          @.constructor.meta().constructInstance @, params
+          @constructor.meta().constructInstance @, params
 
     klass.meta = => @
 
@@ -32,7 +32,7 @@ class Class
       catch e
         error = e
 
-      meta = @.constructor.meta()
+      meta = @constructor.meta()
       caller = meta._callerFromError error, "_super"
 
       for supermeta in meta.superclasses()
@@ -56,7 +56,7 @@ class Class
     return new @ ( name: name, _class: klass )
 
   _newFromClass: (klass) ->
-    return @.constructor.newFromClass klass
+    return @constructor.newFromClass klass
 
   setSuperclasses: (supers) ->
     supers = [supers] unless supers instanceof Array
@@ -67,80 +67,80 @@ class Class
       # XXX - throw an error here instead?
       return unless typeof klass == "function"
 
-      return @._newFromClass klass
+      return @_newFromClass klass
 
     @_superclasses = _.filter supers, (klass) -> klass?
 
-    @._checkMetaclassCompatibility()
+    @_checkMetaclassCompatibility()
 
     for meta in @_superclasses
       for own name, method of meta.methods()
-        continue if @.hasMethod name
-        @.addMethod method.clone()
+        continue if @hasMethod name
+        @addMethod method.clone()
 
     return
 
   addAttribute: (attribute) ->
     if attribute not instanceof Attribute
-      aclass = @.attributeClass()
+      aclass = @attributeClass()
       attribute = new aclass attribute
 
-    @.attributes()[ attribute.name() ] = attribute
-    @.addMethod method for method in attribute.methods()
+    @attributes()[ attribute.name() ] = attribute
+    @addMethod method for method in attribute.methods()
 
     return attribute
 
   removeAttribute: (attribute) ->
-    delete @.attributes()[ attribute.name() ]
-    @.removeMethod method for method in attribute.methods()
+    delete @attributes()[ attribute.name() ]
+    @removeMethod method for method in attribute.methods()
     return
 
   attribute: (name) ->
-    return @.attributes()[name]
+    return @attributes()[name]
 
   hasAttribute: (name) ->
-    return @.attribute(name)?
+    return @attribute(name)?
 
   addMethod: (method) ->
     if method not instanceof Method
-      mclass = @.methodClass()
+      mclass = @methodClass()
       method = new mclass method
 
-    @._methodsObj()[ method.name() ] = method
+    @_methodsObj()[ method.name() ] = method
     method.attachToClass this
-    @.class().prototype[ method.name() ] = method.body()
+    @class().prototype[ method.name() ] = method.body()
     return
 
   removeMethod: (method) ->
-    delete @._methodsObj()[ method.name() ]
+    delete @_methodsObj()[ method.name() ]
     method.detachFromClass this
-    delete @.class().prototype[ method.name() ]
+    delete @class().prototype[ method.name() ]
     return
 
   hasMethod: (name) ->
-    return @.methods()[name]?
+    return @methods()[name]?
 
   methodNamed: (name) ->
-    methods = @._methodsObj()
+    methods = @_methodsObj()
     return methods[name] if methods[name]?
 
-    if @.class().prototype[name]? && typeof @.class().prototype[name] == "function"
-      @.addMethod name: name, body: @.class().prototype[name]
+    if @class().prototype[name]? && typeof @class().prototype[name] == "function"
+      @addMethod name: name, body: @class().prototype[name]
 
     return methods[name]
 
   # XXX - once there's an immutabilization hook this method should just cache
   # the methods
   methods: ->
-    for own name, body of @.class().prototype
-      continue if @._methodsObj()[name]
+    for own name, body of @class().prototype
+      continue if @_methodsObj()[name]
       # XXX - this is kind of gross - maybe have some sort of way of marking a
       # method as hidden or something?
       continue if name == "_super"
 
-      @.addMethod name: name, body: @.class().prototype[name], source: @
+      @addMethod name: name, body: @class().prototype[name], source: @
 
-    return @._methodsObj()
+    return @_methodsObj()
 
   _checkMetaclassCompatibility: (klass) ->
     return
@@ -152,7 +152,7 @@ class Class
       else
         params
 
-    for own name, attr of @.attributes()
+    for own name, attr of @attributes()
       attr.initializeInstanceSlot instance, params
 
     instance.BUILDALL params if instance.BUILDALL?

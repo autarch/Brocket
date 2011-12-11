@@ -6,14 +6,14 @@ class Method
     @_associatedClass = args.metaclass
 
   clone: ->
-    constructor = @.constructor
-    return new constructor name: @.name(), body: @.body(), source: @.source()
+    constructor = @constructor
+    return new constructor name: @name(), body: @body(), source: @source()
 
   attachToClass: (metaclass) ->
-    @.associatedClass metaclass
+    @associatedClass metaclass
 
   detachFromClass: (metaclass) ->
-    @._clearAssociatedClass()
+    @_clearAssociatedClass()
 
   name: ->
     @_name
