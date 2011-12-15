@@ -1,19 +1,21 @@
-_         = require "underscore"
-Attribute = require "./Attribute"
-Method    = require "./Method"
-util      = require "util"
+_          = require "underscore"
+Attribute  = require "./Attribute"
+HasMethods = require "./Mixin/HasMethods"
+Method     = require "./Method"
+util       = require "util"
 
-class Class
+class Class extends HasMethods
   constructor: (args) ->
+    # XXX - this won't work with multiple inheritance
+    super
+
     @_name = args.name
     throw "You must provide a name when constructing a class" unless @_name
 
     @_attributes   = {}
-    @_methods      = {}
     @_superclasses = []
 
     @_attributeClass = args.attributeClass ? Attribute
-    @_methodClass    = args.methodClass    ? Method
 
     @_class = @_makeClass args._class
 
@@ -101,47 +103,6 @@ class Class
   hasAttribute: (name) ->
     return @attribute(name)?
 
-  addMethod: (method) ->
-    if method not instanceof Method
-      mclass = @methodClass()
-      method = new mclass method
-
-    @_methodsObj()[ method.name() ] = method
-    method.attachToClass this
-    @class().prototype[ method.name() ] = method.body()
-    return
-
-  removeMethod: (method) ->
-    delete @_methodsObj()[ method.name() ]
-    method.detachFromClass this
-    delete @class().prototype[ method.name() ]
-    return
-
-  hasMethod: (name) ->
-    return @methods()[name]?
-
-  methodNamed: (name) ->
-    methods = @_methodsObj()
-    return methods[name] if methods[name]?
-
-    if @class().prototype[name]? && typeof @class().prototype[name] == "function"
-      @addMethod name: name, body: @class().prototype[name]
-
-    return methods[name]
-
-  # XXX - once there's an immutabilization hook this method should just cache
-  # the methods
-  methods: ->
-    for own name, body of @class().prototype
-      continue if @_methodsObj()[name]
-      # XXX - this is kind of gross - maybe have some sort of way of marking a
-      # method as hidden or something?
-      continue if name == "_super"
-
-      @addMethod name: name, body: @class().prototype[name], source: @
-
-    return @_methodsObj()
-
   _checkMetaclassCompatibility: (klass) ->
     return
 
@@ -180,16 +141,10 @@ class Class
   attributes: ->
     @_attributes
 
-  _methodsObj: ->
-    @_methods
-
   class: ->
     @_class
 
   attributeClass: ->
     @_attributeClass
-
-  methodClass: ->
-    @_methodClass
 
 module.exports = Class
