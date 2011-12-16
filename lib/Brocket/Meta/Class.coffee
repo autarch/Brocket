@@ -1,23 +1,26 @@
-_          = require "underscore"
-Attribute  = require "./Attribute"
-HasMethods = require "./Mixin/HasMethods"
-util       = require "util"
+_             = require "underscore"
+Attribute     = require "./Attribute"
+HasAttributes = require "./Mixin/HasAttributes"
+HasMethods    = require "./Mixin/HasMethods"
+util          = require "util"
 
 class Class
+  for own key of HasAttributes.prototype
+    unless Object.prototype.hasOwnProperty Class.prototype, key
+      Class.prototype[key] = HasAttributes.prototype[key]
+
   for own key of HasMethods.prototype
     unless Object.prototype.hasOwnProperty Class.prototype, key
       Class.prototype[key] = HasMethods.prototype[key]
 
   constructor: (args) ->
     @_buildMethodProperties args
+    @_buildAttributeProperties args
 
     @_name = args.name
     throw "You must provide a name when constructing a class" unless @_name
 
-    @_attributes   = {}
     @_superclasses = []
-
-    @_attributeClass = args.attributeClass ? Attribute
 
     @_class = @_makeClass args._class
 
@@ -84,27 +87,6 @@ class Class
 
     return
 
-  addAttribute: (attribute) ->
-    if attribute not instanceof Attribute
-      aclass = @attributeClass()
-      attribute = new aclass attribute
-
-    @attributes()[ attribute.name() ] = attribute
-    @addMethod method for method in attribute.methods()
-
-    return attribute
-
-  removeAttribute: (attribute) ->
-    delete @attributes()[ attribute.name() ]
-    @removeMethod method for method in attribute.methods()
-    return
-
-  attribute: (name) ->
-    return @attributes()[name]
-
-  hasAttribute: (name) ->
-    return @attribute(name)?
-
   _checkMetaclassCompatibility: (klass) ->
     return
 
@@ -134,19 +116,16 @@ class Class
 
     return
 
+  _defaultAttributeClass: ->
+    Attribute
+
   name: ->
     @_name
 
   superclasses: ->
     @_superclasses
 
-  attributes: ->
-    @_attributes
-
   class: ->
     @_class
-
-  attributeClass: ->
-    @_attributeClass
 
 module.exports = Class
