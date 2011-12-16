@@ -34,10 +34,7 @@ class Class
     klass.meta = => @
 
     klass.prototype._super = ->
-      try
-        throw new Error
-      catch e
-        error = e
+      error = new Error
 
       meta = @constructor.meta()
       caller = meta._callerFromError error, "_super"
