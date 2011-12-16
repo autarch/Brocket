@@ -1,12 +1,11 @@
 _          = require "underscore"
 Attribute  = require "./Attribute"
 HasMethods = require "./Mixin/HasMethods"
-Method     = require "./Method"
 util       = require "util"
 
 class Class extends HasMethods
   constructor: (args) ->
-    # XXX - this won't work with multiple inheritance
+    # XXX - this won't work with multiple inheritance - HasAttributes
     super
 
     @_name = args.name
