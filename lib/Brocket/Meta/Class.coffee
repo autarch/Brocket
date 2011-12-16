@@ -3,10 +3,13 @@ Attribute  = require "./Attribute"
 HasMethods = require "./Mixin/HasMethods"
 util       = require "util"
 
-class Class extends HasMethods
+class Class
+  for own key of HasMethods.prototype
+    unless Object.prototype.hasOwnProperty Class.prototype, key
+      Class.prototype[key] = HasMethods.prototype[key]
+
   constructor: (args) ->
-    # XXX - this won't work with multiple inheritance - HasAttributes
-    super
+    @_buildMethodProperties args
 
     @_name = args.name
     throw "You must provide a name when constructing a class" unless @_name

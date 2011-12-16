@@ -1,7 +1,7 @@
 Method = require "../Method"
 
 class HasMethods
-  constructor: (args) ->
+  _buildMethodProperties: (args) ->
     @_methods     = {}
     @_methodClass = args.methodClass ? Method
 
