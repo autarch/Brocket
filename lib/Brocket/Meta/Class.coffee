@@ -14,13 +14,16 @@ class Class
       Class.prototype[key] = HasMethods.prototype[key]
 
   constructor: (args) ->
-    @_buildMethodProperties args
-    @_buildAttributeProperties args
-
     @_name = args.name
     throw "You must provide a name when constructing a class" unless @_name
 
+    @_buildMethodProperties args
+    @_buildAttributeProperties args
+
     @_superclasses = []
+
+    @_roles = []
+    @__roleApplications = []
 
     @_class = @_makeClass args._class
 
@@ -39,14 +42,15 @@ class Class
       meta = @constructor.meta()
       caller = meta._callerFromError error, "_super"
 
-      for supermeta in meta.superclasses()
+      ancestors = meta.linearizedInheritance()
+      for supermeta in ancestors
         superclass = supermeta.class()
         if Object.prototype.hasOwnProperty.call superclass.prototype, caller
           return superclass.prototype[caller].apply @, arguments
 
-      supernames = _.map meta.superclasses(), (s) -> s.name()
+      supernames = _.map ancestors, (s) -> s.name()
 
-      throw Error "No #{caller} method found in any superclasses of #{ meta.name() } - superclasses are #{ supernames.join(',') }"
+      throw Error "No #{caller} method found in any superclasses of #{ meta.name() } - superclasses are #{ supernames.join(', ') }"
 
     return klass
 
@@ -101,6 +105,53 @@ class Class
 
     return instance
 
+  # XXX - this needs to be redone to use the C3 algorithm
+  linearizedInheritance: ->
+    metas = [];
+
+    for supermeta in @superclasses()
+      metas.push supermeta;
+
+      for meta in supermeta.linearizedInheritance()
+        metas.push meta
+
+    return metas
+
+  addRole: (role) ->
+    @_roles().push role
+
+    return
+
+  doesRole: (role) ->
+    name =
+     if role instanceof Role
+        role.name()
+      else
+        role
+
+    for role in @roles()
+      return true if role.name == name
+
+    return false
+
+  roles: ->
+    roles = []
+
+    seen = {}
+
+    for meta in @linearizedInheritance()
+      for role in meta.localRoles()
+        continue if seen[ role.name() ]
+        seen[ role.name() ] = true
+        roles.push role
+
+    return roles
+
+  addRoleApplication: (application) ->
+    @_roleApplications().push application
+
+    return
+
   _callerFromError: (error, ignoreBefore) ->
     re = new RegExp "\\.#{ignoreBefore} \\("
     for line in error.stack.split /\n+/
@@ -124,5 +175,11 @@ class Class
 
   class: ->
     @_class
+
+  localRoles: ->
+    @_roles
+
+  _roleApplications: ->
+    @__roleApplications
 
 module.exports = Class

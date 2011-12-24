@@ -1,3 +1,4 @@
+_    = require "underscore"
 test = (require "tap").test
 util = require "util"
 
@@ -112,7 +113,39 @@ test "methodInheritance", (t) ->
   t.equivalent metaclass.superclasses(), [ Foo.meta() ],
     "can set superclass with a class and it is turned into a metaclass"
 
+  t.equivalent metaclass.linearizedInheritance(), [ Foo.meta() ],
+    "linearizedInheritance returns all ancestors"
+
   bar = new Bar
   t.equal bar.method(), 84, "methods from superclass do not overwrite class's own methods"
+
+  class Foo1
+    x: ->
+
+  class Foo2
+    method: -> return @_super()
+    bad:    -> return @_super()
+
+  foo1meta = Class.newFromClass Foo1
+  foo1meta.setSuperclasses Foo
+
+  foo2meta = Class.newFromClass Foo2
+  foo2meta.setSuperclasses Foo1;
+
+  foo2 = new Foo2
+  t.equal foo2.method(), 42, "methods can be inherited from grandparent classes"
+
+  error
+  try
+    foo2.bad()
+  catch e
+    error = e
+
+  t.ok error?, "error thrown from bad call to _super"
+
+  if error?
+    t.equal error.message,
+      "No bad method found in any superclasses of Foo2 - superclasses are Foo1, Foo",
+      "attempting to call _super when no superclass has the requested method fails"
 
   t.end()
