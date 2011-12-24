@@ -13,9 +13,31 @@ class Class
     unless Object.prototype.hasOwnProperty Class.prototype, key
       Class.prototype[key] = HasMethods.prototype[key]
 
+  _metaclasses = {}
+
+  @storeMetaclass = (meta) ->
+    _metaclasses[ meta.name() ] = meta
+    return
+
+  @getMetaclass = (name) ->
+    return _metaclasses[name]
+
+  @metaclassExists = (name) ->
+    return _metaclasses[name]?
+
+  @removeMetaclass = (name) ->
+    return _metaclasses[name]?
+
+  _constructor = @
+
   constructor: (args) ->
     @_name = args.name
     throw "You must provide a name when constructing a class" unless @_name
+
+    args.cache = true unless args.cache? && ! args.cache
+
+    if args.cache && _constructor.metaclassExists args.name
+      return _constructor.getMetaclass args.name
 
     @_buildMethodProperties args
     @_buildAttributeProperties args
@@ -26,6 +48,8 @@ class Class
     @__roleApplications = []
 
     @_class = @_makeClass args._class
+
+    _constructor.storeMetaclass @ if args.cache
 
     return
 

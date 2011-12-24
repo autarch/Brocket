@@ -60,10 +60,10 @@ test "metaclass basics", (t) ->
   t.equal metaclass.class().meta(), metaclass,
     "underlying class's meta() method returns metaclass object"
 
-  class Foo
+  class MyOtherClass
 
-  metaclass = Class.newFromClass Foo
-  t.equal metaclass.name(), "Foo", "newFromClass figured out class name correctly"
+  metaclass = Class.newFromClass MyOtherClass
+  t.equal metaclass.name(), "MyOtherClass", "newFromClass figured out class name correctly"
 
   func = ->
   metaclass = Class.newFromClass func
@@ -72,7 +72,7 @@ test "metaclass basics", (t) ->
   t.end()
 
 test "constructInstance", (t) ->
-  metaclass = new Class name: "MyClass"
+  metaclass = new Class name: "MyClass2"
   metaclass.setSuperclasses Base.meta()
 
   metaclass.addAttribute name: "foo"
@@ -110,6 +110,8 @@ test "methodInheritance", (t) ->
 
   metaclass = Class.newFromClass Bar
   metaclass.setSuperclasses Foo
+
+  t.ok Foo.meta, "Foo class now has a meta method"
   t.equivalent metaclass.superclasses(), [ Foo.meta() ],
     "can set superclass with a class and it is turned into a metaclass"
 
@@ -149,3 +151,19 @@ test "methodInheritance", (t) ->
       "attempting to call _super when no superclass has the requested method fails"
 
   t.end()
+
+test "metaclass cache", (t) ->
+  metaclass1 = new Class name: "MyClass3"
+  metaclass2 = new Class name: "MyClass3"
+
+  t.equal metaclass1, metaclass2, "two metaclasses with the same name are the same object"
+
+  metaclass3 = new Class name: "MyClass3", cache: false
+
+  t.ok metaclass1 != metaclass3, "can explicitly not cache a class"
+
+  metaclass4 = new Class name: "MyClass4", cache: false
+  t.ok (!Class.metaclassExists "MyClass4"), "MyClass4 metaclass is not in the metaclass cache"
+
+  t.end()
+
