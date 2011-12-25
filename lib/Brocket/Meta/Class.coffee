@@ -28,6 +28,13 @@ class Class
   @removeMetaclass = (name) ->
     return _metaclasses[name]?
 
+  @allMetaclasses = ->
+    return _.values _metaclasses
+
+  @_clearMetaclasses = ->
+    _metaclasses = {}
+    return
+
   _constructor = @
 
   constructor: (args) ->
@@ -79,13 +86,14 @@ class Class
     return klass
 
   @newFromClass = (klass) ->
-    name =
-      if matches = klass.toString().match( /function\s*(\w+)/ )
-        matches[1]
-      else
-        "__Anon__"
+    if matches = klass.toString().match( /function\s*(\w+)/ )
+      name = matches[1]
+      cache = true
+    else
+      name = "__Anon__"
+      cache = false
 
-    return new @ ( name: name, _class: klass )
+    return new @ ( name: name, _class: klass, cache: cache )
 
   _newFromClass: (klass) ->
     return @constructor.newFromClass klass

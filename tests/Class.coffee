@@ -165,5 +165,13 @@ test "metaclass cache", (t) ->
   metaclass4 = new Class name: "MyClass4", cache: false
   t.ok (!Class.metaclassExists "MyClass4"), "MyClass4 metaclass is not in the metaclass cache"
 
+  Class._clearMetaclasses()
+
+  anon = ->
+  anonmeta = Class.newFromClass anon
+
+  t.equal anonmeta.name(), "__Anon__", "anon class name is __Anon__"
+  t.equivalent Class.allMetaclasses(), [], "anon class is not cached"
+
   t.end()
 
