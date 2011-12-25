@@ -154,9 +154,12 @@ test "methodInheritance", (t) ->
 
 test "metaclass cache", (t) ->
   metaclass1 = new Class name: "MyClass3"
+  metaclass1._arbitrary = 42
+
   metaclass2 = new Class name: "MyClass3"
 
   t.equal metaclass1, metaclass2, "two metaclasses with the same name are the same object"
+  t.equal metaclass2._arbitrary, 42, "really ensure that the two objects are the same"
 
   metaclass3 = new Class name: "MyClass3", cache: false
 
