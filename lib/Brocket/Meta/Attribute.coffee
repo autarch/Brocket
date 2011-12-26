@@ -83,6 +83,13 @@ class Attribute
 
     return
 
+  attachToClass: (metaclass) ->
+    @_associatedClass = metaclass
+    return;
+
+  associatedClass: ->
+    return @_associatedClass
+
   initializeInstanceSlot: (instance, params) ->
     name = @name();
 

@@ -8,6 +8,8 @@ class HasAttributes
       aclass = @attributeClass()
       attribute = new aclass attribute
 
+    @_attachAttribute attribute
+
     @attributes()[ attribute.name() ] = attribute
     @addMethod method for method in attribute.methods()
 

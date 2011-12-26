@@ -149,6 +149,10 @@ class Class
 
     return metas
 
+  _attachAttribute: (attr) ->
+    attr.attachToClass @
+    return
+
   addRole: (role) ->
     @_roles().push role
 

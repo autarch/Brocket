@@ -34,6 +34,9 @@ test "metaclass basics", (t) ->
   catch error
     t.equal error, null, "no error thrown from addAttribute"
 
+  t.equal attr1.associatedClass(), metaclass,
+    "associatedClass for attribute is set when it is added"
+
   has = metaclass.hasAttribute "attr1"
   t.ok has, "has an attribute named attr1"
 
