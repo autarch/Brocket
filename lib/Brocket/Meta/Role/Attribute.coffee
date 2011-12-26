@@ -1,5 +1,5 @@
 _             = require "underscore"
-AttributeCore = require "./Mixin/AttributeCore"
+AttributeCore = require "../Mixin/AttributeCore"
 util          = require "util"
 
 class Attribute
@@ -23,6 +23,10 @@ class Attribute
 
   attachToRole: (role) ->
     @_associatedRole = role
+    return;
+
+  detachFromRole: (role) ->
+    delete @_associatedRole
     return;
 
   associatedRole: ->

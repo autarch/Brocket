@@ -51,6 +51,7 @@ test "metaclass basics", (t) ->
   has = metaclass.hasAttribute "attr1"
   t.ok !has, "removeAttribute removed attr1"
   t.ok !metaclass.class().prototype.attr, "method is removed from class prototype"
+  t.ok !attr1.associatedClass(), "associatedClass for attribute is cleared when it is removed"
 
   has = metaclass.hasMethod "attr1"
   t.ok !has, "removeAttribute removed method named attr1"

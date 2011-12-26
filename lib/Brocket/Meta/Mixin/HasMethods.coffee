@@ -1,4 +1,6 @@
+_      = require "underscore"
 Method = require "../Method"
+util   = require "util"
 
 class HasMethods
   _buildMethodProperties: (args) ->

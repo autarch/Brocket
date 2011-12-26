@@ -31,10 +31,13 @@ class Application
 
     return
 
-  isMethodAliased: (name) ->
+  methodIsAliased: (name) ->
     return @_method_aliases()[name]?
 
-  isMethodExcluded: (name) ->
+  aliasForMethod: (name) ->
+    return @_method_aliases()[name]
+
+  methodIsExcluded: (name) ->
     return @_method_exclusions()[name]?
 
   method_aliases: ->

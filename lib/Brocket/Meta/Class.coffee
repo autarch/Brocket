@@ -149,8 +149,14 @@ class Class
 
     return metas
 
-  _attachAttribute: (attr) ->
-    attr.attachToClass @
+  _attachAttribute: (attribute) ->
+    attribute.attachToClass @
+    @addMethod method for method in attribute.methods()
+    return
+
+  _detachAttribute: (attribute) ->
+    attribute.detachFromClass @
+    @removeMethod method for method in attribute.methods()
     return
 
   addRole: (role) ->

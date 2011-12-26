@@ -41,6 +41,23 @@ class ToClass extends Application
       continue if metaclass.hasAttribute attr.name()
       metaclass.addAttribute attr.attributeForClass()
 
+    return
+
+  _applyMethods: ->
+    metaclass = @class()
+
+    for method in @role().methods()
+      continue if metaclass.hasMethod method.name()
+      unless @methodIsExcluded method.name()
+        metaclass.addMethod method
+
+      # XXX - need to handle aliases
+      if @methodIsAliased method.name()
+        newMethod = method.clone name: @aliasForMethod method.name()
+        metaclass.addMethod newMethod
+
+    return
+
   role: ->
     return @_role
 

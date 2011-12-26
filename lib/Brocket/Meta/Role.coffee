@@ -40,6 +40,10 @@ class Role extends HasMethods
     attr.attachToRole @
     return
 
+  _detachAttribute: (attr) ->
+    attr.detachFromRole @
+    return
+
   addRequiredMethod: (method) ->
     if method instanceof String
       rmclass = @requiredMethodClass()

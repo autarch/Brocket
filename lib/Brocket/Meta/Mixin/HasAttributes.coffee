@@ -1,3 +1,6 @@
+_    = require "underscore"
+util = require "util"
+
 class HasAttributes
   _buildAttributeProperties: (args) ->
     @_attributes     = {}
@@ -11,13 +14,12 @@ class HasAttributes
     @_attachAttribute attribute
 
     @attributes()[ attribute.name() ] = attribute
-    @addMethod method for method in attribute.methods()
 
     return attribute
 
   removeAttribute: (attribute) ->
+    @_detachAttribute attribute
     delete @attributes()[ attribute.name() ]
-    @removeMethod method for method in attribute.methods()
     return
 
   attribute: (name) ->
