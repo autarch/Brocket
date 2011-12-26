@@ -3,9 +3,9 @@ test = (require "tap").test
 util = require "util"
 
 Attribute = require "../lib/Brocket/Meta/Attribute";
-Base      = (require "../lib/Brocket/Base")
-Class     = (require "../lib/Brocket/Meta/Class")
-Method    = (require "../lib/Brocket/Meta/Method")
+Base      = require "../lib/Brocket/Base"
+Class     = require "../lib/Brocket/Meta/Class"
+Method    = require "../lib/Brocket/Meta/Method"
 
 test "metaclass basics", (t) ->
   metaclass = new Class name: "MyClass"

@@ -3,9 +3,9 @@ _    = require "underscore"
 util = require "util"
 
 Attribute = require "../lib/Brocket/Meta/Attribute";
-Base      = (require "../lib/Brocket/Base")
-Class     = (require "../lib/Brocket/Meta/Class")
-Method    = (require "../lib/Brocket/Meta/Method")
+Base      = require "../lib/Brocket/Base"
+Class     = require "../lib/Brocket/Meta/Class"
+Method    = require "../lib/Brocket/Meta/Method"
 
 test "attribute basics", (t) ->
   attr1 = new Attribute name: "foo"
