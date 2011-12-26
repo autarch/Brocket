@@ -14,7 +14,32 @@ Meta protocol
 
 - local vs inherited attributes, methods, modifiers, etc.
 
+Roles
+
+- role summation
+- method conflicts between roles
+- apply role to role
+
+Class/role construction
+
+Brocket.defineClass "MyClass", (B) ->
+  B.subclasses "MyParent"
+  B.override "foo", ->
+  B.before "meth", ->
+  B.around "meth", (orig, ...) ->
+  B.after "meth", ->
+  B.has ...
+  B.method (foo, bar) ->
+
 C3 inheritance algorithm - eventually, but multiple inheritance is not so
 important with roles
 
-Something like Moose::Util::MetaRole for apply metaroles
+Something like Moose::Util::MetaRole for applying metaroles
+
+Type system
+
+- no string types
+- all types are objects
+- clone objects on import to avoid coercion on global types?
+-- make cloning optional somehow?
+-- have a different import for type libs vs importing into classes?
