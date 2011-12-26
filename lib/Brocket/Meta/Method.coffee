@@ -1,35 +1,53 @@
+_    = require "underscore"
+util = require "util"
+
 class Method
   constructor: (args) ->
-    @_name   = args.name
-    @_body   = args.body
-    @_source = args.source
+    @_name            = args.name
+    @_body            = args.body
+    @_source          = args.source
     @_associatedClass = args.metaclass
 
-  clone: ->
+    return
+
+  clone: (args) ->
+    args ?= {}
+
+    for prop in [ "name", "body" ]
+      args[prop] ?= @[prop]()
+
+    args.source = @source()
+
     constructor = @constructor
-    return new constructor name: @name(), body: @body(), source: @source()
+
+    return new constructor args
 
   attachToClass: (metaclass) ->
-    @associatedClass metaclass
+    @_setAssociatedClass metaclass
+    return
 
   detachFromClass: (metaclass) ->
     @_clearAssociatedClass()
+    return
 
   name: ->
-    @_name
+    return @_name
 
   body: ->
-    @_body
+    return @_body
 
-  source: (source) ->
-    @_source = source if source?
+  source: ->
     return @_source
 
-  associatedClass: (metaclass) ->
-    @_associatedClass = metaclass if metaclass?
+  associatedClass: ->
     return @_metaclass
+
+  _setAssociatedClass: (metaclass) ->
+    @_associatedClass = metaclass
+    return
 
   _clearAssociatedClass: ->
     delete @_associatedClass
+    return
 
 module.exports = Method
