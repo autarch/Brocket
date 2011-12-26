@@ -3,10 +3,11 @@ Immutablization
 - memoize metaclass info
 - resolve all _super calls directly
 - generate optimized constructor
+- spit out entire class as generated coffeescript
 
 Meta protocol
 
-- attribute get/set/predicate/clear as methods which receive an instance
+- attribute get/set/predicate/clear as methods which receive an instance -
   currently inline only
 
 - instance metaclass - could do inside-out objects in JS too
@@ -15,3 +16,5 @@ Meta protocol
 
 C3 inheritance algorithm - eventually, but multiple inheritance is not so
 important with roles
+
+Something like Moose::Util::MetaRole for apply metaroles
