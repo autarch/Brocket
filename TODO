@@ -5,6 +5,11 @@ Immutablization
 - generate optimized constructor
 - spit out entire class as generated coffeescript
 
+Brocket/Base
+
+- BUILDALL doesn't do anything yet
+- BUILDARGS may need to be revisited
+
 Meta protocol
 
 - attribute get/set/predicate/clear as methods which receive an instance -
