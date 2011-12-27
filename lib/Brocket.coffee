@@ -17,25 +17,21 @@ _subclasses = (meta, supers) ->
 
 _consumes = (meta, name, options) ->
 
-_finalize = (klass) ->
-  delete klass["has"]
-  delete klass["method"]
-  delete klass["subclasses"]
-  delete klass["consumes"]
-  delete klass["finalize"]
-  return
-
-module.exports.makeClass = (name) ->
+module.exports.makeClass = (name, definition) ->
   metaclass = new Class name: name
 
   metaclass.setSuperclasses(Base)
 
   klass = metaclass.class()
 
-  klass.has        = (name, attr)    -> _has metaclass, name, attr
-  klass.method     = (name, body)    -> _method metaclass, name, body
-  klass.subclasses = (supers)        -> _subclasses metaclass, supers
-  klass.consumes   = (role, options) -> _consumes metaclass, role, options
-  klass.finalize   =                 -> _finalize @
+  B = {}
+  B.has        = (name, attr)    -> _has metaclass, name, attr
+  B.method     = (name, body)    -> _method metaclass, name, body
+  B.subclasses = (supers)        -> _subclasses metaclass, supers
+  B.consumes   = (role, options) -> _consumes metaclass, role, options
+
+  definition ?= -> return
+
+  definition.call @, B
 
   return klass
