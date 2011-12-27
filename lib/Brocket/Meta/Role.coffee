@@ -9,12 +9,10 @@ util           = require "util"
 
 class Role extends HasMethods
   for own key of HasAttributes.prototype
-    unless Object.prototype.hasOwnProperty Role.prototype, key
-      Role.prototype[key] = HasAttributes.prototype[key]
+    Role.prototype[key] = HasAttributes.prototype[key]
 
   for own key of HasMethods.prototype
-    unless Object.prototype.hasOwnProperty Role.prototype, key
-      Role.prototype[key] = HasMethods.prototype[key]
+    Role.prototype[key] = HasMethods.prototype[key]
 
   constructor: (args) ->
     @_name = args.name
@@ -43,6 +41,11 @@ class Role extends HasMethods
   _detachAttribute: (attr) ->
     attr.detachFromRole @
     return
+
+  # Unlike a class, methods can only be added to a role explicitly, so we
+  # don't need to check an associated prototype for implicit methods.
+  _methodMap: ->
+    return @_methodsObj()
 
   addRequiredMethod: (method) ->
     if method instanceof String

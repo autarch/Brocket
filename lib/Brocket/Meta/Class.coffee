@@ -6,12 +6,10 @@ util          = require "util"
 
 class Class
   for own key of HasAttributes.prototype
-    unless Object.prototype.hasOwnProperty Class.prototype, key
-      Class.prototype[key] = HasAttributes.prototype[key]
+    Class.prototype[key] = HasAttributes.prototype[key]
 
   for own key of HasMethods.prototype
-    unless Object.prototype.hasOwnProperty Class.prototype, key
-      Class.prototype[key] = HasMethods.prototype[key]
+    Class.prototype[key] = HasMethods.prototype[key]
 
   _metaclasses = {}
 
@@ -114,7 +112,7 @@ class Class
     @_checkMetaclassCompatibility()
 
     for meta in @_superclasses
-      for own name, method of meta.methods()
+      for own name, method of meta._methodMap()
         continue if @hasMethod name
         @addMethod method.clone()
 
@@ -148,6 +146,35 @@ class Class
         metas.push meta
 
     return metas
+
+  _attachMethod: (method) ->
+    method.attachToMeta @
+    @class().prototype[ method.name() ] = method.body()
+    return
+
+  methodNamed: (name) ->
+    methods = @_methodMap()
+    return methods[name] if methods[name]?
+
+    if @class().prototype[name]? && typeof @class().prototype[name] == "function"
+      @addMethod name: name, body: @class().prototype[name]
+
+    return methods[name]
+
+  # XXX - once there's an immutabilization hook this method should just cache
+  # the methods
+  _methodMap: ->
+    methods = @_methodsObj()
+
+    for own name, body of @class().prototype
+      continue if methods[name]?
+      # XXX - this is kind of gross - maybe have some sort of way of marking a
+      # method as hidden or something?
+      continue if name == "_super"
+
+      @addMethod name: name, body: @class().prototype[name], source: @
+
+    return @_methodsObj()
 
   _attachAttribute: (attribute) ->
     attribute.attachToClass @

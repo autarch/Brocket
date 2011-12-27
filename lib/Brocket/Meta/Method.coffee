@@ -3,10 +3,10 @@ util = require "util"
 
 class Method
   constructor: (args) ->
-    @_name            = args.name
-    @_body            = args.body
-    @_source          = args.source
-    @_associatedClass = args.metaclass
+    @_name           = args.name
+    @_body           = args.body
+    @_source         = args.source
+    @_associatedMeta = args.associatedMeta
 
     return
 
@@ -22,12 +22,12 @@ class Method
 
     return new constructor args
 
-  attachToClass: (metaclass) ->
-    @_setAssociatedClass metaclass
+  attachToMeta: (meta) ->
+    @_setAssociatedMeta meta
     return
 
-  detachFromClass: (metaclass) ->
-    @_clearAssociatedClass()
+  detachFromMeta: (meta) ->
+    @_clearAssociatedMeta()
     return
 
   name: ->
@@ -39,15 +39,15 @@ class Method
   source: ->
     return @_source
 
-  associatedClass: ->
-    return @_metaclass
+  associatedMeta: ->
+    return @_associatedMeta
 
-  _setAssociatedClass: (metaclass) ->
-    @_associatedClass = metaclass
+  _setAssociatedMeta: (meta) ->
+    @_associatedMeta = meta
     return
 
-  _clearAssociatedClass: ->
-    delete @_associatedClass
+  _clearAssociatedMeta: ->
+    delete @_associatedMeta
     return
 
 module.exports = Method

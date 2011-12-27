@@ -64,6 +64,21 @@ test "metaclass basics", (t) ->
   t.equal metaclass.class().meta(), metaclass,
     "underlying class's meta() method returns metaclass object"
 
+  metaclass.addMethod {
+    name: "newMeth",
+    body: -> 99
+  }
+  t.ok (metaclass.hasMethod "newMeth"), "addMethod added the newMeth method"
+
+  method = metaclass.methodNamed "newMeth"
+  t.equal method.source(), metaclass,
+    "source() returns the metaclass to which the method belongs"
+  t.equal method.associatedMeta(), metaclass,
+    "associatedMeta() returns the metaclass to which the method belongs"
+
+  metaclass.removeMethod "newMeth"
+  t.ok (! metaclass.hasMethod "newMeth"), "removeMethod removed the newMeth method"
+
   class MyOtherClass
 
   metaclass = Class.newFromClass MyOtherClass

@@ -4,8 +4,7 @@ util          = require "util"
 
 class Attribute
   for own key of AttributeCore.prototype
-    unless Object.prototype.hasOwnProperty Attribute.prototype, key
-      Attribute.prototype[key] = AttributeCore.prototype[key]
+    Attribute.prototype[key] = AttributeCore.prototype[key]
 
   constructor: (args) ->
     @_buildAttributeCore args
