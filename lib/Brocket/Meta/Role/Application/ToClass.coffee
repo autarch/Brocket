@@ -71,3 +71,5 @@ class ToClass extends Application
   _setClass: (metaclass) ->
     @_class = metaclass
     return
+
+module.exports = ToClass

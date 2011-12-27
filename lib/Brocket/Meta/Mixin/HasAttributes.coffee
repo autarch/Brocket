@@ -3,7 +3,7 @@ util = require "util"
 
 class HasAttributes
   _buildAttributeProperties: (args) ->
-    @_attributes     = {}
+    @__attributeMap  = {}
     @_attributeClass = args.attributeClass ? @_defaultAttributeClass()
 
   addAttribute: (attribute) ->
@@ -12,26 +12,28 @@ class HasAttributes
       attribute = new aclass attribute
 
     @_attachAttribute attribute
-
-    @attributes()[ attribute.name() ] = attribute
+    @_attributeMap()[ attribute.name() ] = attribute
 
     return attribute
 
   removeAttribute: (attribute) ->
     @_detachAttribute attribute
-    delete @attributes()[ attribute.name() ]
+    delete @_attributeMap()[ attribute.name() ]
     return
 
-  attribute: (name) ->
-    return @attributes()[name]
-
   hasAttribute: (name) ->
-    return @attribute(name)?
+    return @_attributeMap()[name]?
+
+  attributeNamed: (name) ->
+    return @_attributeMap()[name]
 
   attributes: ->
-    @_attributes
+    return _.values @_attributeMap()
+
+  _attributeMap: ->
+    return @__attributeMap
 
   attributeClass: ->
-    @_attributeClass
+    return @_attributeClass
 
 module.exports = HasAttributes

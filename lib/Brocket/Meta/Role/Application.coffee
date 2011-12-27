@@ -19,15 +19,15 @@ class Application
     return
 
   apply: ->
-    @_check_required_methods()
+    @_checkRequiredMethods()
 
-    @_apply_attributes()
-    @_apply_methods()
+    @_applyAttributes()
+    @_applyMethods()
 
-#    @_apply_override_method_modifiers()
-#    @_apply_before_method_modifiers()
-#    @_apply_around_method_modifiers()
-#    @_apply_after_method_modifiers()
+#    @_applyOverrideMethodModifiers()
+#    @_applyBeforeMethodModifiers()
+#    @_applyAroundMethodModifiers()
+#    @_applyAfterMethodModifiers()
 
     return
 

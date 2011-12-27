@@ -91,3 +91,52 @@ test "role metaobject cache", (t) ->
 
   t.end()
 
+test "role application to a class", (t) ->
+  role = new Role name: "MyRole5"
+  role.addAttribute name: "name", access: "ro"
+  role.addAttribute name: "size", access: "rw"
+  role.addAttribute name: "level", access: "rw"
+  role.addMethod name: "foo", body: -> 42
+  role.addMethod name: "bar", body: -> 84
+  role.addMethod name: "ignored", body: -> 12
+  role.addMethod name: "baz", body: -> return @bar()
+  role.addMethod name: "quux", body: -> return @something()
+
+  klass = new Class name: "MyClass"
+  klass.setSuperclasses Base
+  klass.addAttribute name: "level", access: "ro"
+  klass.addAttribute name: "label"
+  klass.addMethod name: "ignored", body: -> 13
+  klass.addMethod name: "something", body: -> 14
+
+  try
+    role.applyRole klass
+  catch e
+    error = e
+
+  t.ok !error?, "no error applying role to class"
+  t.ok (klass.doesRole role), "class does the role (role provided as object)"
+  t.ok (klass.doesRole "MyRole5"), "class does the role (role provided as name)"
+
+  for name in [ "name", "size", "level", "label" ]
+    t.ok (klass.hasAttribute name), "class has an attribute named #{name}"
+
+  for name in [ "foo", "bar", "ignored", "baz", "quux", "something" ]
+    t.ok (klass.hasMethod name), "class has a method named #{name}"
+
+  t.equal (klass.attributeNamed "level").access(), "ro",
+    "level attribute in role does not override level attribute in class"
+
+  t.equal klass.roleApplications().length, 1, "class has one role application object"
+  t.equivalent klass.roles(), [role], "roles() returns list of roles for the class"
+
+  MyClass5 = klass.class()
+  obj = new MyClass5 name: "a name", size: 42
+
+  t.ok obj, "MyClass5 constructor returns something"
+  t.equal obj.name(), "a name", "can call name() method on an object of MyClass5"
+  t.equal obj.ignored(), 13, "ignored() calls class method, not role method"
+  t.equal obj.quux(), 14, "method from role can call method from class"
+
+  t.end()
+

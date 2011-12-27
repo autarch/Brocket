@@ -35,8 +35,8 @@ class Class
 
     @_superclasses = []
 
-    @_roles = []
-    @__roleApplications = []
+    @_localRoles = []
+    @_roleApplications = []
 
     @_class = @_makeClass args._class
 
@@ -178,8 +178,7 @@ class Class
     return
 
   addRole: (role) ->
-    @_roles().push role
-
+    @localRoles().push role
     return
 
   doesRole: (role) ->
@@ -190,16 +189,20 @@ class Class
         role
 
     for role in @roles()
-      return true if role.name == name
+      return true if role.name() == name
 
     return false
 
   roles: ->
+    e = new Error
     roles = []
 
     seen = {}
 
-    for meta in @linearizedInheritance()
+    classes = @linearizedInheritance()
+    classes.unshift @
+
+    for meta in classes
       for role in meta.localRoles()
         continue if seen[ role.name() ]
         seen[ role.name() ] = true
@@ -208,7 +211,7 @@ class Class
     return roles
 
   addRoleApplication: (application) ->
-    @_roleApplications().push application
+    @roleApplications().push application
 
     return
 
@@ -237,9 +240,9 @@ class Class
     @_class
 
   localRoles: ->
-    @_roles
+    @_localRoles
 
-  _roleApplications: ->
-    @__roleApplications
+  roleApplications: ->
+    @_roleApplications
 
 module.exports = Class

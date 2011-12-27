@@ -21,7 +21,7 @@ test "Brocket sugar", (t) ->
   Foo.has "foo", access: "rw", default: 42
 
   t.ok (fooMeta.hasAttribute "foo"), "added a foo attribute"
-  fooAttr = fooMeta.attribute "foo"
+  fooAttr = fooMeta.attributeNamed "foo"
   t.equal fooAttr.access(), "rw", "access is read-write"
   t.ok (fooMeta.hasMethod "foo"), "foo attribute created a foo method"
 

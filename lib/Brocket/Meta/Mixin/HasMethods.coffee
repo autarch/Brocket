@@ -32,6 +32,9 @@ class HasMethods
   methodNamed: (name) ->
     return @_methodMap()[name]
 
+  methods: ->
+    _.values @_methodMap()
+
   _methodsObj: ->
     @__methodsObj
 
