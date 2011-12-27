@@ -1,5 +1,6 @@
 _              = require "underscore"
 Attribute      = require "./Attribute"
+Cache          = require "./Cache"
 HasAttributes  = require "./Mixin/HasAttributes"
 HasMethods     = require "./Mixin/HasMethods"
 RequiredMethod = require "./Role/RequiredMethod"
@@ -7,7 +8,9 @@ RoleAttribute  = require "./Role/Attribute"
 ToClass        = require "./Role/Application/ToClass"
 util           = require "util"
 
-class Role extends HasMethods
+Class = null
+
+class Role
   for own key of HasAttributes.prototype
     Role.prototype[key] = HasAttributes.prototype[key]
 
@@ -17,6 +20,22 @@ class Role extends HasMethods
   constructor: (args) ->
     @_name = args.name
     throw "You must provide a name when constructing a role" unless @_name
+
+    args.cache = true unless args.cache? && ! args.cache
+
+    # This is necessary to avoid a circular dependency issue between Class &
+    # Role. One of them has to be loaded later.
+    Class ?= require "./Class"
+
+    if args.cache && Cache.metaObjectExists args.name
+      meta = Cache.getMetaObject args.name
+      unless meta instanceof Role
+        error = "Found an existing meta object named #{ args.name } which is not a Role object."
+        if meta instanceof Class
+          error += " You cannot create a Class and a Role with the same name."
+        throw new Error error
+
+      return meta
 
     @_buildMethodProperties args
     @_buildAttributeProperties args
@@ -28,6 +47,8 @@ class Role extends HasMethods
     @_appliedAttributeClass = args.appliedAttributeClass ? Attribute
 
     @_requiredMethods = []
+
+    Cache.storeMetaObject @ if args.cache
 
     return
 
@@ -56,8 +77,8 @@ class Role extends HasMethods
     return @_methodsObj()
 
   addRequiredMethod: (method) ->
-    if method instanceof String
-      rmclass = @requiredMethodClass()
+    rmclass = @requiredMethodClass()
+    unless method instanceof rmclass
       method = new rmclass name: method
 
     @requiredMethods().push method

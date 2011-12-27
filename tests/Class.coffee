@@ -4,8 +4,10 @@ util = require "util"
 
 Attribute = require "../lib/Brocket/Meta/Attribute";
 Base      = require "../lib/Brocket/Base"
+Cache     = require "../lib/Brocket/Meta/Cache"
 Class     = require "../lib/Brocket/Meta/Class"
 Method    = require "../lib/Brocket/Meta/Method"
+Role      = require "../lib/Brocket/Meta/Role"
 
 test "metaclass basics", (t) ->
   metaclass = new Class name: "MyClass"
@@ -71,6 +73,7 @@ test "metaclass basics", (t) ->
   t.ok (metaclass.hasMethod "newMeth"), "addMethod added the newMeth method"
 
   method = metaclass.methodNamed "newMeth"
+  t.type method, Method, "class methods are Method instances"
   t.equal method.source(), metaclass,
     "source() returns the metaclass to which the method belongs"
   t.equal method.associatedMeta(), metaclass,
@@ -186,15 +189,27 @@ test "metaclass cache", (t) ->
   t.ok metaclass1 != metaclass3, "can explicitly not cache a class"
 
   metaclass4 = new Class name: "MyClass4", cache: false
-  t.ok (!Class.metaclassExists "MyClass4"), "MyClass4 metaclass is not in the metaclass cache"
+  t.ok (!Cache.metaObjectExists "MyClass4"), "MyClass4 metaclass is not in the meta object cache"
 
-  Class._clearMetaclasses()
+  Cache._clearMetaObjects()
 
   anon = ->
   anonmeta = Class.newFromClass anon
 
   t.equal anonmeta.name(), "__Anon__", "anon class name is __Anon__"
-  t.equivalent Class.allMetaclasses(), [], "anon class is not cached"
+  t.equivalent Cache.allMetaObjects(), [], "anon class is not cached"
+
+  role = new Role name: "Clash"
+
+  try
+    new Class name: "Clash"
+  catch e
+    error = e
+
+  t.ok error?, "got an error trying to create a Class with the same name as a Role"
+  t.equal error.message,
+    "Found an existing meta object named Clash which is not a Class object. You cannot create a Class and a Role with the same name.",
+    "error contains expected message"
 
   t.end()
 

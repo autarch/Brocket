@@ -1,7 +1,9 @@
 _             = require "underscore"
 Attribute     = require "./Attribute"
+Cache         = require "./Cache"
 HasAttributes = require "./Mixin/HasAttributes"
 HasMethods    = require "./Mixin/HasMethods"
+Role          = require "./Role"
 util          = require "util"
 
 class Class
@@ -11,38 +13,21 @@ class Class
   for own key of HasMethods.prototype
     Class.prototype[key] = HasMethods.prototype[key]
 
-  _metaclasses = {}
-
-  @storeMetaclass = (meta) ->
-    _metaclasses[ meta.name() ] = meta
-    return
-
-  @getMetaclass = (name) ->
-    return _metaclasses[name]
-
-  @metaclassExists = (name) ->
-    return _metaclasses[name]?
-
-  @removeMetaclass = (name) ->
-    return _metaclasses[name]?
-
-  @allMetaclasses = ->
-    return _.values _metaclasses
-
-  @_clearMetaclasses = ->
-    _metaclasses = {}
-    return
-
-  _constructor = @
-
   constructor: (args) ->
     @_name = args.name
     throw "You must provide a name when constructing a class" unless @_name
 
     args.cache = true unless args.cache? && ! args.cache
 
-    if args.cache && _constructor.metaclassExists args.name
-      return _constructor.getMetaclass args.name
+    if args.cache && Cache.metaObjectExists args.name
+      meta = Cache.getMetaObject args.name
+      unless meta instanceof Class
+        error = "Found an existing meta object named #{ args.name } which is not a Class object."
+        if meta instanceof Role
+          error += " You cannot create a Class and a Role with the same name."
+        throw new Error error
+
+      return meta
 
     @_buildMethodProperties args
     @_buildAttributeProperties args
@@ -54,7 +39,7 @@ class Class
 
     @_class = @_makeClass args._class
 
-    _constructor.storeMetaclass @ if args.cache
+    Cache.storeMetaObject @ if args.cache
 
     return
 
