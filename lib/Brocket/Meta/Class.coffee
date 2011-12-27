@@ -3,6 +3,7 @@ Attribute     = require "./Attribute"
 Cache         = require "./Cache"
 HasAttributes = require "./Mixin/HasAttributes"
 HasMethods    = require "./Mixin/HasMethods"
+Helpers       = require "../Helpers"
 Role          = require "./Role"
 util          = require "util"
 
@@ -46,7 +47,7 @@ class Class
   _makeClass: (klass) ->
     if !klass
       klass = (params...) ->
-          @constructor.meta().constructInstance @, params
+        @constructor.meta().constructInstance @, params
 
     klass.meta = => @
 
@@ -69,10 +70,10 @@ class Class
     return klass
 
   @newFromClass = (klass) ->
-    if matches = klass.toString().match( /function\s*(\w+)/ )
-      name = matches[1]
-      cache = true
-    else
+    cache = true
+    name = Helpers.className klass
+
+    unless name?
       name = "__Anon__"
       cache = false
 
