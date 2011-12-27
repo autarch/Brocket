@@ -22,8 +22,7 @@ class HasMethods
     method = @methodNamed method unless method instanceof Method
 
     delete @_methodsObj()[ method.name() ]
-    method.detachFromMeta @
-    delete @class().prototype[ method.name() ]
+    @_detachMethod method
 
     return
 
@@ -31,7 +30,7 @@ class HasMethods
     return @_methodMap()[name]?
 
   methodNamed: (name) ->
-    return @_methodMap[name]
+    return @_methodMap()[name]
 
   _methodsObj: ->
     @__methodsObj

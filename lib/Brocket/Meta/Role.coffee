@@ -21,7 +21,7 @@ class Role extends HasMethods
     @_buildMethodProperties args
     @_buildAttributeProperties args
 
-    @_methodClass = args.requiredMethodClass ? RequiredMethod
+    @_requiredMethodClass = args.requiredMethodClass ? RequiredMethod
 
     @_applicationToClassClass = args.applicationToClassClass ? ToClass
 
@@ -40,6 +40,14 @@ class Role extends HasMethods
 
   _detachAttribute: (attr) ->
     attr.detachFromRole @
+    return
+
+  _attachMethod: (method) ->
+    method.attachToMeta @
+    return
+
+  _detachMethod: (method) ->
+    method.detachFromMeta @
     return
 
   # Unlike a class, methods can only be added to a role explicitly, so we

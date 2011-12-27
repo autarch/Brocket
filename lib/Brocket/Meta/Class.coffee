@@ -152,6 +152,11 @@ class Class
     @class().prototype[ method.name() ] = method.body()
     return
 
+  _detachMethod: (method) ->
+    method.detachFromMeta @
+    delete @class().prototype[ method.name() ]
+    return
+
   methodNamed: (name) ->
     methods = @_methodMap()
     return methods[name] if methods[name]?

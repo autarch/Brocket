@@ -33,4 +33,20 @@ test "role basics", (t) ->
   has = role.hasAttribute "attr1"
   t.ok !has, "removeAttribute removed attr1"
 
+  role.addMethod {
+    name: "newMeth",
+    body: -> 99
+  }
+  t.ok (role.hasMethod "newMeth"), "addMethod added the newMeth method"
+
+  method = role.methodNamed "newMeth"
+  t.equal method.source(), role,
+    "source() returns the role to which the method belongs"
+  t.equal method.associatedMeta(), role,
+    "associatedMeta() returns the role to which the method belongs"
+
+  role.removeMethod "newMeth"
+  t.ok (! role.hasMethod "newMeth"), "removeMethod removed the newMeth method"
+  t.ok (! method.associatedMeta()), "no associatedMeta for method after it was removed from the class"
+
   t.end()
