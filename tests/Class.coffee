@@ -78,6 +78,7 @@ test "metaclass basics", (t) ->
 
   metaclass.removeMethod "newMeth"
   t.ok (! metaclass.hasMethod "newMeth"), "removeMethod removed the newMeth method"
+  t.ok (! method.associatedMeta()), "no associatedMeta for method after it was removed from the class"
 
   class MyOtherClass
 
