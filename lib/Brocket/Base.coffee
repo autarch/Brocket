@@ -19,6 +19,9 @@ class Base
   BUILDALL: (params) ->
     return
 
+  DOES: (role) ->
+    return @meta().doesRole role
+
   _meta = new Class { name: "Brocket.Base", _class: @ }
   @meta: -> _meta
 
