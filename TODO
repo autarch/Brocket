@@ -23,7 +23,6 @@ Roles
 
 - role summation
 - method conflicts between roles
-- apply role to role
 
 Class/role construction
 
@@ -48,3 +47,9 @@ Type system
 - clone objects on import to avoid coercion on global types?
 -- make cloning optional somehow?
 -- have a different import for type libs vs importing into classes?
+
+Features I'm not sure about
+
+- role exclusion - never used this with Moose, not sure it's worthwhile
+- attr initializers?
+- lazy_build - lazy & builder, yes - lazy_build, no
