@@ -1,6 +1,7 @@
-Base  = require "./Brocket/Base"
-Class = require "./Brocket/Meta/Class"
-util  = require "util"
+Base    = require "./Brocket/Base"
+Class   = require "./Brocket/Meta/Class"
+Helpers = require "./Brocket/Helpers"
+util    = require "util"
 
 _has = (meta, name, attr) ->
   clone = name: name
@@ -15,6 +16,9 @@ _method = (meta, name, body) ->
 _subclasses = (meta, supers) ->
   meta.setSuperclasses supers
 
+_with = (meta, roles) ->
+  Helpers.applyRoles meta, roles
+
 _consumes = (meta, name, options) ->
 
 module.exports.makeClass = (name, definition) ->
@@ -28,6 +32,7 @@ module.exports.makeClass = (name, definition) ->
   B.has        = (name, attr)    -> _has metaclass, name, attr
   B.method     = (name, body)    -> _method metaclass, name, body
   B.subclasses = (supers)        -> _subclasses metaclass, supers
+  B.with       = (roles...)      -> _with metaclass, roles
   B.consumes   = (role, options) -> _consumes metaclass, role, options
 
   definition ?= -> return

@@ -1,6 +1,8 @@
 _    = require "underscore"
 util = require "util"
 
+Role = null
+
 module.exports.arrayToObject = (array) ->
   obj = {}
   for elt in array
@@ -13,3 +15,29 @@ module.exports.className = (klass) ->
     return matches[1]
   else
     return null
+
+module.exports.applyRoles = (applyTo, roles...) ->
+  Role ?= require "./Meta/Role"
+
+  if roles[0] instanceof Array
+    roles = roles[0]
+
+  pairs = []
+  for item in roles
+    if item instanceof Role
+      pairs.push [item]
+    else if item instanceof Object
+      pairs[-1].push item
+
+  for pair in pairs
+    pair[1] ?= {}
+
+  if pairs.length == 1
+    role = pairs[0][0]
+    args = pairs[0][1]
+
+    role.applyRole applyTo, args
+  else
+    (Role.combine pairs).applyRole applyTo
+
+  return

@@ -1,9 +1,10 @@
 test = (require "tap").test
 util = require "util"
 
-Base    = require "../../lib/Brocket/Base"
-Brocket = require "../../lib/Brocket"
-Class   = require "../../lib/Brocket/Meta/Class"
+Base      = require "../../lib/Brocket/Base"
+Brocket   = require "../../lib/Brocket"
+Class     = require "../../lib/Brocket/Meta/Class"
+RoleSugar = require "../../lib/Brocket/Role"
 
 test "Brocket sugar", (t) ->
   Foo = Brocket.makeClass "Foo";
@@ -35,6 +36,7 @@ test "Brocket sugar", (t) ->
 
   fooObj = new Foo
 
+  t.equal fooObj.meta(), Foo.meta(), "can call meta() on object and class"
   t.equal fooObj.m1(), "m1", "m1 method returns expected value"
   t.equal fooObj.m2(), "m2", "m2 method returns expected value"
   t.equal fooObj.foo(), 42, "foo accessor returns default value"
@@ -61,5 +63,24 @@ test "Brocket sugar", (t) ->
   t.ok !called, "builder for lazy attribute has not been called yet"
   t.equal barObj.lazy(), 99, "lazy attr defaults to 99"
   t.ok called, "builder for lazy attribute has was called"
+
+  MyRole = RoleSugar.makeRole "MyRole", (B) ->
+    B.has "size"
+    B.method "color", -> "blue"
+
+  Baz = Brocket.makeClass "Baz", (B) ->
+    B.with MyRole
+    B.has "level"
+    B.method "quality", ->
+      if @color() == "blue"
+        return "high"
+      else
+        return "low"
+
+  bazObj = new Baz size: 5, level: 42
+  t.equal bazObj.size(), 5, "size returns value passed to constructor"
+  t.equal bazObj.level(), 42, "level returns value passed to constructor"
+  t.equal bazObj.quality(), "high", "quality calls method from role"
+  t.ok (bazObj.meta().doesRole MyRole), "baz object does MyRole"
 
   t.end()

@@ -92,20 +92,8 @@ class Role
 
     if other instanceof Class
       (new ToClass args).apply @, other
-    else if other instanceof Function
-      unless other.meta?
-        meta = Class.newFromClass other
-
-      if other.meta? && ! other.meta instanceof Function
-        throw new Error "Cannot apply a role a class with a meta property that isn't a function"
-
-      meta = other.meta()
-      if meta instanceof Class
-        (new ToClass args).apply @, meta
-      else if meta instanceof Role
-        (new ToRole args).apply @, meta
-      else
-        throw new Error "Cannot apply a role to a #{ Helpers.className other } - it is not a Class or Role"
+    else if other instanceof Role
+      (new ToRole args).apply @, meta
     else if other instanceof Object
       (new ToInstance).apply @, other
     else
