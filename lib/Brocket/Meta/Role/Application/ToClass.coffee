@@ -4,8 +4,8 @@ util        = require "util"
 
 class ToClass extends Application
   apply: (role, metaclass) ->
-    @_setRole  role
-    @_setClass metaclass
+    @_role  = role
+    @_class = metaclass
 
     super
 
@@ -61,15 +61,7 @@ class ToClass extends Application
   role: ->
     return @_role
 
-  _setRole: (role) ->
-    @_role = role
-    return
-
   class: ->
     return @_class
-
-  _setClass: (metaclass) ->
-    @_class = metaclass
-    return
 
 module.exports = ToClass
