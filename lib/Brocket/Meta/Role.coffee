@@ -3,6 +3,7 @@ Attribute      = require "./Attribute"
 Cache          = require "./Cache"
 HasAttributes  = require "./Mixin/HasAttributes"
 HasMethods     = require "./Mixin/HasMethods"
+HasRoles       = require "./Mixin/HasRoles"
 RequiredMethod = require "./Role/RequiredMethod"
 RoleAttribute  = require "./Role/Attribute"
 ToClass        = require "./Role/Application/ToClass"
@@ -18,6 +19,9 @@ class Role
 
   for own key of HasMethods.prototype
     Role.prototype[key] = HasMethods.prototype[key]
+
+  for own key of HasRoles.prototype
+    Role.prototype[key] = HasRoles.prototype[key]
 
   constructor: (args) ->
     @_name = args.name
@@ -49,6 +53,8 @@ class Role
     @_appliedAttributeClass = args.appliedAttributeClass ? Attribute
 
     @_requiredMethods = []
+
+    @_localRoles = []
 
     Cache.storeMetaObject @ if args.cache
 
@@ -101,6 +107,18 @@ class Role
 
     return
 
+  _allRoleSources: ->
+    seen = {}
+
+    roles = [ @localRoles().slice(0) ]
+
+    while role = roles.shift()
+      continue if seen[ role.name() ]
+      seen[ role.name() ]  = true
+      roles.push role
+
+    return _.values seen
+
   name: ->
     return @_name
 
@@ -115,5 +133,8 @@ class Role
 
   appliedAttributeClass: ->
     return @_appliedAttributeClass
+
+  localRoles: ->
+    @_localRoles
 
 module.exports = Role

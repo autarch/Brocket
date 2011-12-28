@@ -3,6 +3,7 @@ Attribute     = require "./Attribute"
 Cache         = require "./Cache"
 HasAttributes = require "./Mixin/HasAttributes"
 HasMethods    = require "./Mixin/HasMethods"
+HasRoles      = require "./Mixin/HasRoles"
 Helpers       = require "../Helpers"
 Role          = require "./Role"
 util          = require "util"
@@ -13,6 +14,9 @@ class Class
 
   for own key of HasMethods.prototype
     Class.prototype[key] = HasMethods.prototype[key]
+
+  for own key of HasRoles.prototype
+    Class.prototype[key] = HasRoles.prototype[key]
 
   constructor: (args) ->
     @_name = args.name
@@ -32,11 +36,9 @@ class Class
 
     @_buildMethodProperties args
     @_buildAttributeProperties args
+    @_buildRoleProperties args
 
     @_superclasses = []
-
-    @_localRoles = []
-    @_roleApplications = []
 
     @_class = @_makeClass args._class
 
@@ -178,38 +180,10 @@ class Class
     @removeMethod method for method in attribute.methods()
     return
 
-  addRole: (role) ->
-    @localRoles().push role
-    return
-
-  doesRole: (role) ->
-    name =
-     if role instanceof Role
-        role.name()
-      else
-        role
-
-    for role in @roles()
-      return true if role.name() == name
-
-    return false
-
-  roles: ->
-    e = new Error
-    roles = []
-
-    seen = {}
-
+  _allRoleSources: ->
     classes = @linearizedInheritance()
     classes.unshift @
-
-    for meta in classes
-      for role in meta.localRoles()
-        continue if seen[ role.name() ]
-        seen[ role.name() ] = true
-        roles.push role
-
-    return roles
+    return classes
 
   addRoleApplication: (application) ->
     @roleApplications().push application
@@ -239,11 +213,5 @@ class Class
 
   class: ->
     @_class
-
-  localRoles: ->
-    @_localRoles
-
-  roleApplications: ->
-    @_roleApplications
 
 module.exports = Class
