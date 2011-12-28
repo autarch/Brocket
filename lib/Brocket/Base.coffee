@@ -2,6 +2,9 @@ Class = require "./Meta/Class"
 util  = require "util"
 
 class Base
+  constructor: ->
+    throw new Error "Cannot construct a Brocket/Base object"
+
   BUILDARGS: (params) ->
     ###
     In the typical case, the params will be passed as an array from the
