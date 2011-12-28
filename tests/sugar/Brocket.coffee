@@ -9,7 +9,7 @@ test "Brocket sugar", (t) ->
   Foo = Brocket.makeClass "Foo";
   fooMeta = Foo.meta()
 
-  t.equal typeof Foo, "function", "makeClass returns a function"
+  t.type Foo, "function", "makeClass returns a function"
   t.ok fooMeta instanceof Class, "fooMeta returns a fooMeta"
   t.equivalent fooMeta.superclasses(), [ Base.meta() ], "superclasses is Base"
 
