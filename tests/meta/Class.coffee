@@ -2,12 +2,12 @@ _    = require "underscore"
 test = (require "tap").test
 util = require "util"
 
-Attribute = require "../lib/Brocket/Meta/Attribute";
-Base      = require "../lib/Brocket/Base"
-Cache     = require "../lib/Brocket/Meta/Cache"
-Class     = require "../lib/Brocket/Meta/Class"
-Method    = require "../lib/Brocket/Meta/Method"
-Role      = require "../lib/Brocket/Meta/Role"
+Attribute = require "../../lib/Brocket/Meta/Attribute";
+Base      = require "../../lib/Brocket/Base"
+Cache     = require "../../lib/Brocket/Meta/Cache"
+Class     = require "../../lib/Brocket/Meta/Class"
+Method    = require "../../lib/Brocket/Meta/Method"
+Role      = require "../../lib/Brocket/Meta/Role"
 
 test "metaclass basics", (t) ->
   metaclass = new Class name: "MyClass"

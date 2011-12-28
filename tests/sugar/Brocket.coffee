@@ -1,9 +1,9 @@
 test = (require "tap").test
 util = require "util"
 
-Base    = require "../lib/Brocket/Base"
-Brocket = require "../lib/Brocket"
-Class   = require "../lib/Brocket/Meta/Class"
+Base    = require "../../lib/Brocket/Base"
+Brocket = require "../../lib/Brocket"
+Class   = require "../../lib/Brocket/Meta/Class"
 
 test "Brocket sugar", (t) ->
   Foo = Brocket.makeClass "Foo";

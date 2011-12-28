@@ -2,14 +2,14 @@ _    = require "underscore"
 test = (require "tap").test
 util = require "util"
 
-Attribute      = require "../lib/Brocket/Meta/Attribute";
-Base           = require "../lib/Brocket/Base"
-Cache          = require "../lib/Brocket/Meta/Cache"
-Class          = require "../lib/Brocket/Meta/Class"
-Method         = require "../lib/Brocket/Meta/Method"
-RequiredMethod = require "../lib/Brocket/Meta/Role/RequiredMethod"
-Role           = require "../lib/Brocket/Meta/Role"
-RoleAttribute  = require "../lib/Brocket/Meta/Role/Attribute"
+Attribute      = require "../../lib/Brocket/Meta/Attribute";
+Base           = require "../../lib/Brocket/Base"
+Cache          = require "../../lib/Brocket/Meta/Cache"
+Class          = require "../../lib/Brocket/Meta/Class"
+Method         = require "../../lib/Brocket/Meta/Method"
+RequiredMethod = require "../../lib/Brocket/Meta/Role/RequiredMethod"
+Role           = require "../../lib/Brocket/Meta/Role"
+RoleAttribute  = require "../../lib/Brocket/Meta/Role/Attribute"
 
 test "role basics", (t) ->
   role = new Role name: "MyRole"
