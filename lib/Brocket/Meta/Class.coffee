@@ -49,7 +49,8 @@ class Class
       klass = (params...) ->
         @constructor.meta().constructInstance @, params
 
-    klass.meta = => @
+    klass.meta           = => @
+    klass.prototype.meta = => @
 
     klass.prototype._super = ->
       error = new Error
