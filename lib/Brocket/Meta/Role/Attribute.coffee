@@ -9,10 +9,11 @@ class Attribute
   constructor: (args) ->
     @_buildAttributeCore args
 
-    @__originalArgs = args
     if args._originalRole?
       @__originalRole = args._originalRole
       delete args._originalRole
+
+    @__originalArgs = args
 
     return
 
@@ -30,6 +31,15 @@ class Attribute
 
   associatedRole: ->
     return @_associatedRole
+
+  clone: ->
+    for own prop, val of @_originalArgs()
+      argsCopy[prop] = val
+
+    argsCopy._originalRole = @_originalRole()
+
+    constructor = @constructor
+    return new constructor argsCopy
 
   originalRole: ->
     orig = @_originalRole()

@@ -1,15 +1,16 @@
-_              = require "underscore"
-Attribute      = require "./Attribute"
-Cache          = require "./Cache"
-HasAttributes  = require "./Mixin/HasAttributes"
-HasMethods     = require "./Mixin/HasMethods"
-HasRoles       = require "./Mixin/HasRoles"
-RequiredMethod = require "./Role/RequiredMethod"
-RoleAttribute  = require "./Role/Attribute"
-ToClass        = require "./Role/Application/ToClass"
-ToInstance     = null #require "./Role/Application/ToInstance"
-ToRole         = null #require "./Role/Application/ToRole"
-util           = require "util"
+_                 = require "underscore"
+Attribute         = require "./Attribute"
+Cache             = require "./Cache"
+ConflictingMethod = require "./Role/ConflictingMethod"
+HasAttributes     = require "./Mixin/HasAttributes"
+HasMethods        = require "./Mixin/HasMethods"
+HasRoles          = require "./Mixin/HasRoles"
+RequiredMethod    = require "./Role/RequiredMethod"
+RoleAttribute     = require "./Role/Attribute"
+ToClass           = require "./Role/Application/ToClass"
+ToInstance        = null #require "./Role/Application/ToInstance"
+ToRole            = null #require "./Role/Application/ToRole"
+util              = require "util"
 
 Class = null
 
@@ -46,13 +47,15 @@ class Role
     @_buildMethodProperties args
     @_buildAttributeProperties args
 
-    @_requiredMethodClass = args.requiredMethodClass ? RequiredMethod
+    @_requiredMethods    = []
+    @_conflictingMethods = []
+
+    @_requiredMethodClass    = args.requiredMethodClass ? RequiredMethod
+    @_conflictingMethodClass = args.conflictingMethodClass ? ConflictingMethod
 
     @_applicationToClassClass = args.applicationToClassClass ? ToClass
 
     @_appliedAttributeClass = args.appliedAttributeClass ? Attribute
-
-    @_requiredMethods = []
 
     @_localRoles = []
 
@@ -93,6 +96,15 @@ class Role
 
     return;
 
+  addConflictingMethod: (method) ->
+    rmclass = @conflictingMethodClass()
+    unless method instanceof rmclass
+      method = new rmclass name: method
+
+    @conflictingMethods().push method
+
+    return;
+
   applyRole: (other, args) ->
     args ?= {}
 
@@ -127,6 +139,12 @@ class Role
 
   requiredMethodClass: ->
     return @_requiredMethodClass
+
+  conflictingMethods: ->
+    return @_conflictingMethods
+
+  conflictingMethodClass: ->
+    return @_conflictingMethodClass
 
   applicationToClassClass: ->
     return @_applicationToClassClass

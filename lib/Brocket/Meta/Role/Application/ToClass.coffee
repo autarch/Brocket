@@ -47,14 +47,32 @@ class ToClass extends Application
     metaclass = @class()
 
     for method in @role().methods()
-      continue if metaclass.hasMethod method.name()
-      unless @methodIsExcluded method.name()
-        metaclass.addMethod method
+      @_applyMethod method
+      @_applyMaybeAliasedMethod method
 
-      # XXX - need to handle aliases
-      if @methodIsAliased method.name()
-        newMethod = method.clone name: @aliasForMethod method.name()
-        metaclass.addMethod newMethod
+    return
+
+  _applyMethod: (method) ->
+    return if @methodIsExcluded method.name()
+
+    existingMethod = @class().methodNamed method.name()
+    if existingMethod? && existingMethod.body().toString() != method.body().toString()
+      return
+
+    @class().addMethod method.clone()
+
+  _applyMaybeAliasedMethod: (method) ->
+    return unless @methodIsAliased method.name()
+
+    aliasedName = @aliasForMethod method.name()
+
+    existingMethod = @class().methodNamed aliasedName
+
+    if existingMethod? && existingMethod.body().toString() != method.body().toString()
+      message = "Cannot create a method alias if a local method of the same name exists - #{aliasedName}"
+      throw new Error message
+
+    @class().addMethod method.clone name: aliasedName
 
     return
 

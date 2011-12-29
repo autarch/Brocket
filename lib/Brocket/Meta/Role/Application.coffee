@@ -4,15 +4,11 @@ util    = require "util"
 
 class Application
   constructor: (args) ->
-    @_aliases    =
-      if args["-aliases"]?
-        Helpers.arrayToObject args["-aliases"]
-      else
-        {}
+    @__methodAliases = args["-aliases"] ? {}
 
-    @_exclusions    =
-      if args["-exclusions"]?
-        Helpers.arrayToObject args["-exclusions"]
+    @__methodExclusions =
+      if args["-excludes"]?
+        Helpers.arrayToObject args["-excludes"]
       else
         {}
 
@@ -32,24 +28,18 @@ class Application
     return
 
   methodIsAliased: (name) ->
-    return @_method_aliases()[name]?
+    return @_methodAliases()[name]?
 
   aliasForMethod: (name) ->
-    return @_method_aliases()[name]
+    return @_methodAliases()[name]
+
+  _methodAliases: ->
+    @__methodAliases
 
   methodIsExcluded: (name) ->
-    return @_method_exclusions()[name]?
+    return @_methodExclusions()[name]?
 
-  method_aliases: ->
-    return _.values @_method_aliases()
-
-  _method_aliases: ->
-    @_aliases
-
-  method_exclusions: ->
-    return _.values @_method_exclusions()
-
-  _method_exclusions: ->
-    @_exclusions
+  _methodExclusions: ->
+    @__methodExclusions
 
 module.exports = Application

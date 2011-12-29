@@ -4,6 +4,11 @@ util = require "util"
 Role = null
 
 module.exports.arrayToObject = (array) ->
+  if typeof array == "string"
+    obj = {}
+    obj[array] = true
+    return obj
+
   obj = {}
   for elt in array
     obj[elt] = true

@@ -19,12 +19,11 @@ test "role basics", (t) ->
   has = role.hasAttribute "attr1"
   t.ok !has, "no attribute named attr1"
 
-  try
-    attr1 = role.addAttribute name: "attr1"
-    t.type attr1, RoleAttribute, "addAttribute returns a role attribute"
-  catch error
-    t.equal error, null, "no error thrown from addAttribute"
+  attr1 = null
+  func = -> attr1 = role.addAttribute name: "attr1"
+  t.doesNotThrow func, "no error thrown from addAttribute"
 
+  t.type attr1, RoleAttribute, "addAttribute returns a role attribute"
   t.equal attr1.associatedRole(), role,
     "associatedRole for attribute is set when it is added"
 
@@ -102,41 +101,64 @@ test "role application to a class", (t) ->
   role.addMethod name: "baz", body: -> return @bar()
   role.addMethod name: "quux", body: -> return @something()
 
-  klass = new Class name: "MyClass"
-  klass.setSuperclasses Base
-  klass.addAttribute name: "level", access: "ro"
-  klass.addAttribute name: "label"
-  klass.addMethod name: "ignored", body: -> 13
-  klass.addMethod name: "something", body: -> 14
+  metaclass = new Class name: "MyClass5"
+  metaclass.setSuperclasses Base
+  metaclass.addAttribute name: "level", access: "ro"
+  metaclass.addAttribute name: "label"
+  metaclass.addMethod name: "ignored", body: -> 13
+  metaclass.addMethod name: "something", body: -> 14
 
-  try
-    role.applyRole klass
-  catch e
-    error = e
+  func = -> role.applyRole metaclass
+  t.doesNotThrow func, "no error applying role to class"
 
-  t.ok !error?, "no error applying role to class"
-  t.ok (klass.doesRole role), "class does the role (role provided as object)"
-  t.ok (klass.doesRole "MyRole5"), "class does the role (role provided as name)"
+  t.ok (metaclass.doesRole role), "class does the role (role provided as object)"
+  t.ok (metaclass.doesRole "MyRole5"), "class does the role (role provided as name)"
 
   for name in [ "name", "size", "level", "label" ]
-    t.ok (klass.hasAttribute name), "class has an attribute named #{name}"
+    t.ok (metaclass.hasAttribute name), "class has an attribute named #{name}"
 
   for name in [ "foo", "bar", "ignored", "baz", "quux", "something" ]
-    t.ok (klass.hasMethod name), "class has a method named #{name}"
+    t.ok (metaclass.hasMethod name), "class has a method named #{name}"
 
-  t.equal (klass.attributeNamed "level").access(), "ro",
+  t.equal (metaclass.attributeNamed "level").access(), "ro",
     "level attribute in role does not override level attribute in class"
 
-  t.equal klass.roleApplications().length, 1, "class has one role application object"
-  t.equivalent klass.roles(), [role], "roles() returns list of roles for the class"
+  t.equal metaclass.roleApplications().length, 1, "class has one role application object"
+  t.equivalent metaclass.roles(), [role], "roles() returns list of roles for the class"
 
-  MyClass5 = klass.class()
+  MyClass5 = metaclass.class()
   obj = new MyClass5 name: "a name", size: 42
 
   t.ok obj, "MyClass5 constructor returns something"
   t.equal obj.name(), "a name", "can call name() method on an object of MyClass5"
   t.equal obj.ignored(), 13, "ignored() calls class method, not role method"
   t.equal obj.quux(), 14, "method from role can call method from class"
+
+  metaclass = new Class name: "MyClass6"
+  role.applyRole metaclass, "-excludes": "foo"
+
+  t.ok (metaclass.doesRole role), "MyClass6 does MyRole5"
+  t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
+
+  metaclass = new Class name: "MyClass7"
+  role.applyRole metaclass, "-excludes": ["foo"]
+
+  t.ok (metaclass.doesRole role), "MyClass7 does MyRole5"
+  t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
+
+  metaclass = new Class name: "MyClass8"
+  role.applyRole metaclass, "-excludes": "foo", "-aliases": { foo: "foo2" }
+
+  t.ok (metaclass.doesRole role), "MyClass8 does MyRole5"
+  t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
+  t.ok (metaclass.hasMethod "foo2"), "aliased method is applied to the class"
+
+  metaclass = new Class name: "MyClass8"
+  role.applyRole metaclass, "-aliases": { foo: "foo2" }
+
+  t.ok (metaclass.doesRole role), "MyClass8 does MyRole5"
+  t.ok (metaclass.hasMethod "foo"), "aliased method original name is applied to the class"
+  t.ok (metaclass.hasMethod "foo2"), "aliased method is applied to the class"
 
   t.end()
 
