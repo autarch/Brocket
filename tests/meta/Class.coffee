@@ -30,11 +30,11 @@ test "metaclass basics", (t) ->
   has = metaclass.hasAttribute "attr1"
   t.ok !has, "no attribute named attr1"
 
-  try
-    attr1 = metaclass.addAttribute name: "attr1"
-    t.type attr1, Attribute, "addAttribute returns an attribute"
-  catch error
-    t.equal error, null, "no error thrown from addAttribute"
+  attr1 = null
+  func = -> attr1 = metaclass.addAttribute name: "attr1"
+  t.doesNotThrow func, "no error thrown from addAttribute"
+
+  t.type attr1, Attribute, "addAttribute returns an attribute"
 
   t.equal attr1.associatedClass(), metaclass,
     "associatedClass for attribute is set when it is added"
@@ -160,18 +160,12 @@ test "methodInheritance", (t) ->
   foo2 = new Foo2
   t.equal foo2.method(), 42, "methods can be inherited from grandparent classes"
 
-  error
-  try
-    foo2.bad()
-  catch e
-    error = e
-
-  t.ok error?, "error thrown from bad call to _super"
-
-  if error?
-    t.equal error.message,
-      "No bad method found in any superclasses of Foo2 - superclasses are Foo1, Foo",
-      "attempting to call _super when no superclass has the requested method fails"
+  func = -> foo2.bad()
+  t.throws func, {
+      name:    "Error",
+      message: "No bad method found in any superclasses of Foo2 - superclasses are Foo1, Foo"
+    },
+    "attempting to call _super when no superclass has the requested method fails"
 
   t.end()
 
@@ -201,15 +195,13 @@ test "metaclass cache", (t) ->
 
   role = new Role name: "Clash"
 
-  try
-    new Class name: "Clash"
-  catch e
-    error = e
+  func = -> new Class name: "Clash"
 
-  t.ok error?, "got an error trying to create a Class with the same name as a Role"
-  t.equal error.message,
-    "Found an existing meta object named Clash which is not a Class object. You cannot create a Class and a Role with the same name.",
-    "error contains expected message"
+  t.throws func, {
+      name:    "Error",
+      message: "Found an existing meta object named Clash which is not a Class object. You cannot create a Class and a Role with the same name."
+    },
+    "got the expected error when trying to create a class with the same name as an existing role"
 
   t.end()
 

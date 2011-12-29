@@ -20,7 +20,7 @@ class Class
 
   constructor: (args) ->
     @_name = args.name
-    throw "You must provide a name when constructing a class" unless @_name
+    throw new Error "You must provide a name when constructing a class" unless @_name
 
     args.cache = true unless args.cache? && ! args.cache
 
@@ -68,7 +68,7 @@ class Class
 
       supernames = _.map ancestors, (s) -> s.name()
 
-      throw Error "No #{caller} method found in any superclasses of #{ meta.name() } - superclasses are #{ supernames.join(', ') }"
+      throw new Error "No #{caller} method found in any superclasses of #{ meta.name() } - superclasses are #{ supernames.join(', ') }"
 
     return klass
 

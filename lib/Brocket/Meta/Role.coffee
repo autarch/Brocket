@@ -26,7 +26,7 @@ class Role
 
   constructor: (args) ->
     @_name = args.name
-    throw "You must provide a name when constructing a role" unless @_name
+    throw new Error "You must provide a name when constructing a role" unless @_name
 
     args.cache = true unless args.cache? && ! args.cache
 
@@ -34,13 +34,15 @@ class Role
     # Role. One of them has to be loaded later.
     Class ?= require "./Class"
 
+    util.debug util.inspect args.name
+
     if args.cache && Cache.metaObjectExists args.name
       meta = Cache.getMetaObject args.name
       unless meta instanceof Role
-        error = "Found an existing meta object named #{ args.name } which is not a Role object."
+        message = "Found an existing meta object named #{ args.name } which is not a Role object."
         if meta instanceof Class
-          error += " You cannot create a Class and a Role with the same name."
-        throw new Error error
+          message += " You canont create a Class and a Role with the same name."
+        throw new Error message
 
       return meta
 

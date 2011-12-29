@@ -15,7 +15,7 @@ class AttributeCore
 
   _validateAccess: (access) ->
     return if access in [ "bare", "ro", "rw" ]
-    throw "The access value for an attribute must be \"bare, \"ro\" or \"rw\", not \"#{access}\""
+    throw new Error "The access value for an attribute must be \"bare, \"ro\" or \"rw\", not \"#{access}\""
 
   name: ->
     @_name

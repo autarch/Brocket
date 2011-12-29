@@ -76,17 +76,14 @@ test "role metaobject cache", (t) ->
 
   Cache._clearMetaObjects()
 
-  role = new Class name: "Clash"
+  new Class name: "Clash"
 
-  try
-    new Role name: "Clash"
-  catch e
-    error = e
-
-  t.ok error?, "got an error trying to create a Role with the same name as a Class"
-  t.equal error.message,
-    "Found an existing meta object named Clash which is not a Role object. You cannot create a Class and a Role with the same name.",
-    "error contains expected message"
+  func = -> new Role name: "Clash"
+  t.throws func, {
+      name:    "Error",
+      message: "Found an existing meta object named Clash which is not a Role object. You cannot create a Class and a Role with the same name.",
+    },
+    "got an error trying to create a Role with the same name as a Class"
 
   t.end()
 

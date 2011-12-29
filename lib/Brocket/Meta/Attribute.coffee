@@ -55,7 +55,7 @@ class Attribute
       @__defaultFunc = (instance) -> @[builder].call instance
 
     if @_lazy && !@__defaultFunc?
-      throw "You must provide a default or builder for a lazy attribute"
+      throw new Error "You must provide a default or builder for a lazy attribute"
 
     return
 

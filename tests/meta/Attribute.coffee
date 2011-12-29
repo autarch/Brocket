@@ -49,14 +49,12 @@ test "attribute basics", (t) ->
   t.end()
 
 test "bad access", (t) ->
-  try
-    new Attribute name: "bad", access: "bad"
-  catch e
-    error = e
-
-  t.equal error,
-    'The access value for an attribute must be "bare, "ro" or "rw", not "bad"',
-    "bad access throws an error"
+  func = -> new Attribute name: "bad", access: "bad"
+  t.throws func, {
+      name:    "Error",
+      message: 'The access value for an attribute must be "bare, "ro" or "rw", not "bad"'
+    },
+    "bad value for access parameter throws an error"
 
   t.end()
 
@@ -73,13 +71,11 @@ test "bare attribute", (t) ->
   t.end()
 
 test "bad lazy", (t) ->
-  try
-    new Attribute name: "bad", lazy: true
-  catch e
-    error = e
-
-  t.equal error,
-    "You must provide a default or builder for a lazy attribute",
+  func = -> new Attribute name: "bad", lazy: true
+  t.throws func, {
+      name:    "Error",
+      message: "You must provide a default or builder for a lazy attribute",
+    },
     "a lazy attribute must have a default"
 
   t.end()
