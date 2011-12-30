@@ -34,14 +34,12 @@ class Role
     # Role. One of them has to be loaded later.
     Class ?= require "./Class"
 
-    util.debug util.inspect args.name
-
     if args.cache && Cache.metaObjectExists args.name
       meta = Cache.getMetaObject args.name
       unless meta instanceof Role
         message = "Found an existing meta object named #{ args.name } which is not a Role object."
         if meta instanceof Class
-          message += " You canont create a Class and a Role with the same name."
+          message += " You cannot create a Class and a Role with the same name."
         throw new Error message
 
       return meta
