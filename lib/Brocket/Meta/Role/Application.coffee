@@ -33,6 +33,9 @@ class Application
   aliasForMethod: (name) ->
     return @_methodAliases()[name]
 
+  hasAliasNamed: (name) ->
+    return _.any _.values( @_methodAliases() ), (alias) -> alias == name
+
   _methodAliases: ->
     @__methodAliases
 

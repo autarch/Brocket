@@ -10,10 +10,7 @@ class ConflictingMethod extends RequiredMethod
 
     return
 
-  name: ->
-    @_name
-
   roles: ->
-    @_roles
+    return @_roles
 
 module.exports = ConflictingMethod

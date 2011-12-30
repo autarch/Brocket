@@ -8,6 +8,6 @@ class RequiredMethod
     return
 
   name: ->
-    @_name
+    return @_name
 
 module.exports = RequiredMethod

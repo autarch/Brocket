@@ -45,14 +45,7 @@ class ToRole extends Application
 
   _applyMethod: (method) ->
     return if @methodIsExcluded method.name()
-
-    existingMethod = @receivingRole().methodNamed method.name()
-    if existingMethod? && existingMethod.body().toString() != method.body().toString()
-      @receivingRole().addConflictingMethod {
-        name:  method.name(),
-        roles: [ @appliedRole(), @receivingRole() ]
-      }
-      return
+    return if @receivingRole().hasMethod method.name()
 
     @receivingRole().addMethod method.clone()
 

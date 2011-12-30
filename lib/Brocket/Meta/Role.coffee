@@ -49,7 +49,6 @@ class Role
     @_buildRoleProperties args
 
     @_requiredMethods    = []
-    @_conflictingMethods = []
 
     @_requiredMethodClass    = args.requiredMethodClass ? RequiredMethod
     @_conflictingMethodClass = args.conflictingMethodClass ? ConflictingMethod
@@ -100,9 +99,9 @@ class Role
   addConflictingMethod: (method) ->
     rmclass = @conflictingMethodClass()
     unless method instanceof rmclass
-      method = new rmclass name: method
+      method = new rmclass method
 
-    @conflictingMethods().push method
+    @requiredMethods().push method
 
     return;
 
@@ -141,7 +140,8 @@ class Role
     return @_requiredMethodClass
 
   conflictingMethods: ->
-    return @_conflictingMethods
+    cmclass = @conflictingMethodClass()
+    return _.filter @requiredMethods(), (m) -> m instanceof cmclass
 
   conflictingMethodClass: ->
     return @_conflictingMethodClass

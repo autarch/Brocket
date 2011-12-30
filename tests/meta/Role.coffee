@@ -159,3 +159,35 @@ test "role application to a class", (t) ->
 
   t.end()
 
+test "role application to a role", (t) ->
+  role6 = new Role name: "MyRole6"
+  role6.addAttribute name: "name", access: "ro"
+  role6.addAttribute name: "size", access: "rw"
+  role6.addAttribute name: "level", access: "rw"
+  role6.addMethod name: "foo", body: -> 42
+  role6.addMethod name: "bar", body: -> 84
+  role6.addMethod name: "consumerWins", body: -> 13
+  role6.addMethod name: "baz", body: -> return @bar()
+  role6.addMethod name: "quux", body: -> return @something()
+
+  role7 = new Role name: "MyRole7"
+  role7.addAttribute name: "level", access: "ro"
+  role7.addAttribute name: "label"
+  role7.addMethod name: "consumerWins", body: -> "x"
+  role7.addMethod name: "something", body: -> 14
+
+  func = -> role6.apply role7
+  t.doesNotThrow func, "no error applying MyRole6 to MyRole7"
+
+  t.ok (role7.hasAttribute "name"), "MyRole7 has a name attribute"
+  t.ok (role7.hasMethod "foo"), "MyRole7 has a foo attribute"
+
+  metaclass = new Class name: "MyClass9"
+  func = -> role7.apply metaclass
+  t.doesNotThrow func, "can apply MyRole7 to a class"
+
+  MyClass9 = metaclass.class()
+  obj = new MyClass9
+  t.equal obj.consumerWins(), "x", "no conflict with method of same name when one role consumes another - consumer wins"
+
+  t.end()
