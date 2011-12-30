@@ -36,6 +36,8 @@ test "Role sugar", (t) ->
       called = true
       return 99
 
+  t.ok (BarRole.doesRole FooRole), "BarRole does FooRole"
+
   MyClass = Brocket.makeClass "MyClass", (B) ->
     B.with BarRole
 
