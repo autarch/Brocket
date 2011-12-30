@@ -180,15 +180,17 @@ class Class
     @removeMethod method for method in attribute.methods()
     return
 
-  _allRoleSources: ->
+  roles: ->
     classes = @linearizedInheritance()
     classes.unshift @
-    return classes
 
-  addRoleApplication: (application) ->
-    @roleApplications().push application
+    roles = []
 
-    return
+    for klass in classes
+      for role in klass.localRoles()
+        roles = roles.concat role.roles()
+
+    return _.uniq roles
 
   _callerFromError: (error, ignoreBefore) ->
     re = new RegExp "\\.#{ignoreBefore} \\("

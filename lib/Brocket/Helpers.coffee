@@ -41,8 +41,8 @@ module.exports.applyRoles = (applyTo, roles...) ->
     role = pairs[0][0]
     args = pairs[0][1]
 
-    role.applyRole applyTo, args
+    role.apply applyTo, args
   else
-    (Role.combine pairs).applyRole applyTo
+    (Role.combine pairs).apply applyTo
 
   return

@@ -29,6 +29,7 @@ test "Role sugar", (t) ->
     B.with FooRole
     B.has "bar", builder: "_buildBar"
     B.method "_buildBar", -> 84
+    B.method "m2", -> "m2"
 
     B.has "lazy", builder: "_buildLazy", lazy: true
     B.method "_buildLazy", ->
@@ -37,6 +38,10 @@ test "Role sugar", (t) ->
 
   MyClass = Brocket.makeClass "MyClass", (B) ->
     B.with BarRole
+
+  myMeta = MyClass.meta()
+  t.ok (myMeta.doesRole BarRole), "MyClass does BarRole"
+  t.ok (myMeta.doesRole FooRole), "MyClass does FooRole"
 
   myObj = new MyClass
   t.equal myObj.m1(), "m1", "BarRole composes m1 method"

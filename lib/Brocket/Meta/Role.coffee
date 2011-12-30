@@ -9,7 +9,7 @@ RequiredMethod    = require "./Role/RequiredMethod"
 RoleAttribute     = require "./Role/Attribute"
 ToClass           = require "./Role/Application/ToClass"
 ToInstance        = null #require "./Role/Application/ToInstance"
-ToRole            = null #require "./Role/Application/ToRole"
+ToRole            = require "./Role/Application/ToRole"
 util              = require "util"
 
 Class = null
@@ -46,6 +46,7 @@ class Role
 
     @_buildMethodProperties args
     @_buildAttributeProperties args
+    @_buildRoleProperties args
 
     @_requiredMethods    = []
     @_conflictingMethods = []
@@ -105,13 +106,13 @@ class Role
 
     return;
 
-  applyRole: (other, args) ->
+  apply: (other, args) ->
     args ?= {}
 
     if other instanceof Class
       (new ToClass args).apply @, other
     else if other instanceof Role
-      (new ToRole args).apply @, meta
+      (new ToRole args).apply @, other
     else if other instanceof Object
       (new ToInstance).apply @, other
     else
@@ -119,15 +120,14 @@ class Role
 
     return
 
-  _allRoleSources: ->
+  roles: ->
+    roles = [@].concat @localRoles()
+
     seen = {}
-
-    roles = [ @localRoles().slice(0) ]
-
-    while role = roles.shift()
+    for role in roles
       continue if seen[ role.name() ]
-      seen[ role.name() ]  = true
-      roles.push role
+      seen[ role.name() ] = role
+      roles.push role.localRoles()
 
     return _.values seen
 
@@ -151,8 +151,5 @@ class Role
 
   appliedAttributeClass: ->
     return @_appliedAttributeClass
-
-  localRoles: ->
-    @_localRoles
 
 module.exports = Role

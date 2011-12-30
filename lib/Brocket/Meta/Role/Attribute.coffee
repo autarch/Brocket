@@ -33,6 +33,7 @@ class Attribute
     return @_associatedRole
 
   clone: ->
+    argsCopy = {}
     for own prop, val of @_originalArgs()
       argsCopy[prop] = val
 

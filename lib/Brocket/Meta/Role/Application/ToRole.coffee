@@ -9,8 +9,8 @@ class ToRole extends Application
 
     super
 
-    receivingRole.addRole appliedRole
-    receivingRole.addRoleApplication @
+    @receivingRole().addRole @appliedRole()
+    @receivingRole().addRoleApplication @
 
     return
 
@@ -24,7 +24,7 @@ class ToRole extends Application
 
   _applyAttributes: ->
     for attr in @appliedRole().attributes()
-      if @receivingRole.hasAttribute attr.name()        && @receivingRole.attributeNamed attr.name() != attr
+      if @receivingRole().hasAttribute attr.name() && @receivingRole().attributeNamed attr.name() != attr
         unless @receivingrole().attributeNamed attribute.name() == attribute
           message = "There was an attribute conflict while composing" +
             "#{ @appliedRole().name() } into #{ @receivingRole().name() }." +
@@ -32,7 +32,7 @@ class ToRole extends Application
             "The conflict attribute is named '#{ attr.name() }'"
           throw new Error message
 
-      @receivingRole.addAttribute attr.clone()
+      @receivingRole().addAttribute attr.clone()
 
     return
 
@@ -80,4 +80,4 @@ class ToRole extends Application
   receivingRole: ->
     return @_receivingRole
 
-module.exports = ToClass
+module.exports = ToRole

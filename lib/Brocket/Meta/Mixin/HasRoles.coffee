@@ -26,18 +26,9 @@ class HasRoles
 
     return false
 
-  roles: ->
-    roles = []
-
-    seen = {}
-
-    for meta in @_allRoleSources()
-      for role in meta.localRoles()
-        continue if seen[ role.name() ]
-        seen[ role.name() ] = true
-        roles.push role
-
-    return roles
+  addRoleApplication: (application) ->
+    @roleApplications().push application
+    return
 
   localRoles: ->
     @_localRoles

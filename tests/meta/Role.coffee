@@ -105,7 +105,7 @@ test "role application to a class", (t) ->
   metaclass.addMethod name: "ignored", body: -> 13
   metaclass.addMethod name: "something", body: -> 14
 
-  func = -> role.applyRole metaclass
+  func = -> role.apply metaclass
   t.doesNotThrow func, "no error applying role to class"
 
   t.ok (metaclass.doesRole role), "class does the role (role provided as object)"
@@ -132,26 +132,26 @@ test "role application to a class", (t) ->
   t.equal obj.quux(), 14, "method from role can call method from class"
 
   metaclass = new Class name: "MyClass6"
-  role.applyRole metaclass, "-excludes": "foo"
+  role.apply metaclass, "-excludes": "foo"
 
   t.ok (metaclass.doesRole role), "MyClass6 does MyRole5"
   t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
 
   metaclass = new Class name: "MyClass7"
-  role.applyRole metaclass, "-excludes": ["foo"]
+  role.apply metaclass, "-excludes": ["foo"]
 
   t.ok (metaclass.doesRole role), "MyClass7 does MyRole5"
   t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
 
   metaclass = new Class name: "MyClass8"
-  role.applyRole metaclass, "-excludes": "foo", "-aliases": { foo: "foo2" }
+  role.apply metaclass, "-excludes": "foo", "-aliases": { foo: "foo2" }
 
   t.ok (metaclass.doesRole role), "MyClass8 does MyRole5"
   t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
   t.ok (metaclass.hasMethod "foo2"), "aliased method is applied to the class"
 
   metaclass = new Class name: "MyClass8"
-  role.applyRole metaclass, "-aliases": { foo: "foo2" }
+  role.apply metaclass, "-aliases": { foo: "foo2" }
 
   t.ok (metaclass.doesRole role), "MyClass8 does MyRole5"
   t.ok (metaclass.hasMethod "foo"), "aliased method original name is applied to the class"
