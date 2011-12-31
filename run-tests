@@ -2,7 +2,7 @@
 
 PATH=$PATH:node_modules/coffee-script/bin:node_modules/tap/bin
 
-find lib -name *.coffee | xargs coffee -c
+find lib -name '*.coffee' -a -not -name '.#*' -a -not -name '#*' | xargs coffee -c
 
 tap.js ./tests
 
