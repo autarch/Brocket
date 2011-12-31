@@ -6,7 +6,6 @@ find lib -name *.coffee | xargs coffee -c
 
 tap.js ./tests
 
-if [ $? == 0 ]; then
-    find lib -name *.js | xargs rm
-fi
+find lib -name *.js | xargs rm
+
 
