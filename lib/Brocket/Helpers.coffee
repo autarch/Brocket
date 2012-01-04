@@ -1,7 +1,8 @@
 _    = require "underscore"
 util = require "util"
 
-Role = null
+Class = null
+Role  = null
 
 module.exports.arrayToObject = (array) ->
   if typeof array == "string"
@@ -61,3 +62,23 @@ module.exports.optList = (list, args) ->
     retVal = retVal.concat pair
 
   return retVal
+
+module.exports.findMeta = (thing, classClass) ->
+  Class ?= require "./Meta/Class"
+  Role  ?= require "./Meta/Role"
+
+  return thing if thing instanceof Class
+  return thing if thing instanceof Role
+  return thing.meta() if thing.meta?
+
+  unless typeof thing == "function"
+    throw new Error "Cannot find a metaclass for a #{thing}"
+
+  # Allows callers to pass an alternate metaclass
+  classClass ?= Class
+
+  unless classClass.newFromClass?
+    name = module.exports.className classClass
+    throw new Error "The #{name} class does not have a newFromClass method"
+
+  return classClass.newFromClass thing

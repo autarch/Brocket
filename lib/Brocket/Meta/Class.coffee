@@ -66,7 +66,8 @@ class Class
         if Object.prototype.hasOwnProperty.call superclass.prototype, caller
           return superclass.prototype[caller].apply @, arguments
 
-      supernames = _.map ancestors, (s) -> s.name()
+      name = (s) -> s.name()
+      supernames = (name s for s in ancestors)
 
       throw new Error "No #{caller} method found in any superclasses of #{ meta.name() } - superclasses are #{ supernames.join(', ') }"
 
@@ -80,23 +81,19 @@ class Class
       name = "__Anon__"
       cache = false
 
-    return new @ ( name: name, _class: klass, cache: cache )
-
-  _newFromClass: (klass) ->
-    return @constructor.newFromClass klass
+    return new @ { name: name, _class: klass, cache: cache }
 
   setSuperclasses: (supers) ->
     supers = [supers] unless supers instanceof Array
 
-    supers = _.map supers, (klass) =>
-      return klass if klass instanceof Class
-      return klass.meta() if klass.meta?
-      # XXX - throw an error here instead?
-      return unless typeof klass == "function"
+    constructor = @constructor
+    metaFor = (s) ->
+      meta = Helpers.findMeta s, constructor
+      unless meta instanceof Class
+        throw new Error "Cannot have a superclass which is a #{ Helpers.className meta }"
+      return meta
 
-      return @_newFromClass klass
-
-    @_superclasses = _.filter supers, (klass) -> klass?
+    @_superclasses = (metaFor s for s in supers)
 
     @_checkMetaclassCompatibility()
 
