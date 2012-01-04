@@ -53,7 +53,7 @@ test "role basics", (t) ->
 
   role.addRequiredMethod "foo"
   role.addRequiredMethod (new RequiredMethod name: "bar")
-  t.equivalent (_.map role.requiredMethods(), (m) -> m.name()), [ "foo", "bar" ],
+  t.equivalent ( m.name() for m in role.requiredMethods() ), [ "foo", "bar" ],
     "required method list contains the expected values"
 
   t.end()

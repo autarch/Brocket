@@ -19,19 +19,19 @@ test "attribute basics", (t) ->
   t.ok ! attr1.hasPredicate(), "attr1 has no predicate"
   t.ok ! attr1.hasClearer(), "attr1 has no clearer"
 
-  names = _.map attr1.methods(), (method) -> method.name()
+  names = ( m.name() for m in attr1.methods() )
   t.equivalent names, ["foo"], "methods returns a single method named foo"
 
   attr2 = new Attribute name: "foo", predicate: "hasFoo"
-  names = _.map attr2.methods(), (method) -> method.name()
+  names = ( m.name() for m in attr2.methods() )
   t.equivalent names.sort(), ["foo", "hasFoo"], "methods includes reader and predicate"
 
   attr3 = new Attribute name: "foo", clearer: "clearFoo"
-  names = _.map attr3.methods(), (method) -> method.name()
+  names = ( m.name() for m in attr3.methods() )
   t.equivalent names.sort(), ["clearFoo", "foo"], "methods includes reader and clearer"
 
   attr4 = new Attribute name: "foo", predicate: "hasFoo", clearer: "clearFoo"
-  names = _.map attr4.methods(), (method) -> method.name()
+  names = ( m.name() for m in attr4.methods() )
   t.equivalent names.sort(),
     ["clearFoo", "foo", "hasFoo"],
     "methods includes reader, predicate, and clearer"
@@ -65,7 +65,7 @@ test "bare attribute", (t) ->
 
   t.equal attr.access(), "bare", "access() returns bare"
 
-  names = _.map attr.methods(), (method) -> method.name()
+  names = ( m.name() for m in attr.methods() )
   t.equivalent names, [], "a bare attribute has no methods"
 
   t.end()
