@@ -1,6 +1,7 @@
 _                 = require "underscore"
 Attribute         = require "./Attribute"
 Cache             = require "./Cache"
+Composite         = require "./Role/Composite"
 ConflictingMethod = require "./Role/ConflictingMethod"
 HasAttributes     = require "./Mixin/HasAttributes"
 HasMethods        = require "./Mixin/HasMethods"
@@ -48,12 +49,14 @@ class Role
     @_buildAttributeProperties args
     @_buildRoleProperties args
 
-    @_requiredMethods    = []
+    @_requiredMethods = []
 
     @_requiredMethodClass    = args.requiredMethodClass ? RequiredMethod
     @_conflictingMethodClass = args.conflictingMethodClass ? ConflictingMethod
 
-    @_applicationToClassClass = args.applicationToClassClass ? ToClass
+    @_applicationToClassClass    = args.applicationToClassClass ? ToClass
+    @_applicationToRoleClass     = args.applicationToRoleClass ? ToRole
+    @_applicationToInstanceClass = args.applicationToInstanceClass ? ToRole
 
     @_appliedAttributeClass = args.appliedAttributeClass ? Attribute
 
@@ -62,6 +65,19 @@ class Role
     Cache.storeMetaObject @ if args.cache
 
     return
+
+  @Combine = (roles...) ->
+    optList = Helpers.optList roles, { lhs: Role }
+
+    roles = []
+    args = {}
+    for i in [0..optList.length] by 2
+      role = optList[i]
+      roles.push role
+      args[ role.name() ] = optsList[ i + 1 ]
+
+    composite = new Composite roles: roles
+    return composite.applyCompositionArgs roleParams: args
 
   _defaultAttributeClass: ->
     RoleAttribute
@@ -109,13 +125,15 @@ class Role
     args ?= {}
 
     if other instanceof Class
-      (new ToClass args).apply @, other
+      appClass = @applicationToClassClass()
     else if other instanceof Role
-      (new ToRole args).apply @, other
+      appClass = @applicationToRoleClass()
     else if other instanceof Object
-      (new ToInstance).apply @, other
+      appClass = @applicationToInstanceClass()
     else
       throw new Error "Cannot apply a role to a #{ other.toString() }"
+
+    (new appClass args).apply @, other
 
     return
 
@@ -130,6 +148,9 @@ class Role
 
     return _.values seen
 
+  _roleForCombination: ->
+    return @
+
   name: ->
     return @_name
 
@@ -141,13 +162,19 @@ class Role
 
   conflictingMethods: ->
     cmclass = @conflictingMethodClass()
-    return _.filter @requiredMethods(), (m) -> m instanceof cmclass
+    return ( m for m in @requiredMethods() when m instanceof cmclass )
 
   conflictingMethodClass: ->
     return @_conflictingMethodClass
 
   applicationToClassClass: ->
     return @_applicationToClassClass
+
+  applicationToRoleClass: ->
+    return @_applicationToRoleClass
+
+  applicationToInstanceClass: ->
+    return @_applicationToInstanceClass
 
   appliedAttributeClass: ->
     return @_appliedAttributeClass
