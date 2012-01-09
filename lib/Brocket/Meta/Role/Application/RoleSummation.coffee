@@ -71,7 +71,7 @@ class RoleSummation extends Application
 
       saw = seen[ method.name ]
       if saw?
-        if saw.method.body().toString() != method.method.body().toString()
+        if saw.method.body() != method.method.body()
           @compositeRole().addConflictingMethod method.name
           delete methodMap[ method.name ]
           conflicts[ method.name ] = true
