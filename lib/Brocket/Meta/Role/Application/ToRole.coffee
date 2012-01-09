@@ -17,7 +17,6 @@ class ToRole extends Application
   _checkRequiredMethods: ->
     for method in @appliedRole().requiredMethods()
       continue if @receivingRole().hasMethod method.name()
-      continue if @methodIsAliased method.name()
       @receivingRole().addRequiredMethod method
 
     return
@@ -39,33 +38,13 @@ class ToRole extends Application
   _applyMethods: ->
     for method in @appliedRole().methods()
       @_applyMethod method
-      @_applyMaybeAliasedMethod method
 
     return
 
   _applyMethod: (method) ->
-    return if @methodIsExcluded method.name()
     return if @receivingRole().hasMethod method.name()
 
     @receivingRole().addMethod method.clone()
-
-  _applyMaybeAliasedMethod: (method) ->
-    return unless @methodIsAliased method.name()
-
-    aliasedName = @aliasForMethod method.name()
-
-    existingMethod = @receivingRole().methodNamed aliasedName
-
-    if existingMethod? && existingMethod.body().toString() != method.body().toString()
-      message = "Cannot create a method alias if a local method of the same name exists - #{aliasedName}"
-      throw new Error message
-
-    @receivingRole().addMethod method.clone name: aliasedName
-
-    unless @methodIsExcluded method.name() || @receivingRole().hasMethod method.name()
-      @receivingRole().addRequiredMethod method.name()
-
-    return
 
   appliedRole: ->
     return @_appliedRole

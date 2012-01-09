@@ -136,32 +136,6 @@ test "role application to a class", (t) ->
   t.equal obj.ignored(), 13, "ignored() calls class method, not role method"
   t.equal obj.quux(), 14, "method from role can call method from class"
 
-  metaclass = new Class name: "MyClass2"
-  role.apply metaclass, "-excludes": "foo"
-
-  t.ok (metaclass.doesRole role), "MyClass2 does MyRole"
-  t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
-
-  metaclass = new Class name: "MyClass3"
-  role.apply metaclass, "-excludes": ["foo"]
-
-  t.ok (metaclass.doesRole role), "MyClass3 does MyRole"
-  t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
-
-  metaclass = new Class name: "MyClass4"
-  role.apply metaclass, "-excludes": "foo", "-aliases": { foo: "foo2" }
-
-  t.ok (metaclass.doesRole role), "MyClass4 does MyRole"
-  t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
-  t.ok (metaclass.hasMethod "foo2"), "aliased method is applied to the class"
-
-  metaclass = new Class name: "MyClass5"
-  role.apply metaclass, "-aliases": { foo: "foo2" }
-
-  t.ok (metaclass.doesRole role), "MyClass5 does MyRole"
-  t.ok (metaclass.hasMethod "foo"), "aliased method original name is applied to the class"
-  t.ok (metaclass.hasMethod "foo2"), "aliased method is applied to the class"
-
   t.end()
 
 test "role application to a role", (t) ->
@@ -213,13 +187,6 @@ test "role summation", (t) ->
   Helpers.applyRoles metaclass, [ roleA, roleB ]
 
   for name in [ "foo", "bar", "baz", "buz" ]
-    t.ok (metaclass.hasMethod name), "metaclass has #{name} method after consuming RoleA and RoleB"
-
-  metaclass = new Class name: "MyClass2"
-  Helpers.applyRoles metaclass, [ roleA, { "-excludes": "foo" }, roleB ]
-
-  t.ok (! metaclass.hasMethod "foo"), "foo method was excluded during role summation"
-  for name in [ "bar", "baz", "buz" ]
     t.ok (metaclass.hasMethod name), "metaclass has #{name} method after consuming RoleA and RoleB"
 
   t.end()

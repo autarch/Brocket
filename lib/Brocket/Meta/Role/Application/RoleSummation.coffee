@@ -8,25 +8,8 @@ class RoleSummation extends Application
     @_roleParams = args.roleParams
     return
 
-  _normalizeRoleParams: ->
-    rp = @roleParams()
-
-    for role in @compositeRole().roles()
-      name = role.name()
-
-      rp[name] ?= {}
-      rp[name]["-alias"] ?= {}
-      rp[name]["-excludes"] =
-        if rp[name]["-excludes"]?
-          Helpers.arrayToObject rp[name]["-excludes"]
-        else
-          {}
-
-    return
-
   apply: (compositeRole) ->
     @_compositeRole = compositeRole
-    @_normalizeRoleParams()
     super
 
   _checkRequiredMethods: ->
@@ -35,7 +18,6 @@ class RoleSummation extends Application
     allRequired = []
     for role in roles
       for m in role.requiredMethods()
-        continue if @hasAliasNamed m.name()
         continue if _.any( roles, (r) -> r.hasMethod m.name() )
         allRequired.push m
 
@@ -78,12 +60,6 @@ class RoleSummation extends Application
       roleName = role.name()
 
       for method in role.methods()
-        aliasedTo = @_methodAliasForRole roleName, method.name()
-        if aliasedTo?
-          allMethods.push { role: role, name: aliasedTo, method: method }
-
-        continue if @_methodIsExcludedForRole roleName, method.name()
-
         allMethods.push { role: role, name: method.name(), method: method }
 
     seen = {}
@@ -107,15 +83,6 @@ class RoleSummation extends Application
       @compositeRole().addMethod method.clone name: name
 
     return
-
-  hasAliasNamed: (name) ->
-    return _.any @compositeRole().roles(), (r) -> r.aliasForMethod name
-
-  _methodIsExcludedForRole: (role, name) ->
-    return @roleParams()[role]["-excludes"][name]?
-
-  _methodAliasForRole: (role, name) ->
-    return @roleParams()[role]["-alias"][name]
 
   roleParams: ->
     @_roleParams

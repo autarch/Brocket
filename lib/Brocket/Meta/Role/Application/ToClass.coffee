@@ -22,10 +22,8 @@ class ToClass extends Application
 
     for method in @role().requiredMethods()
       continue if @class().hasMethod method.name()
-      continue if @hasAliasNamed method.name()
 
       if method instanceof Conflicting
-        continue if @methodIsExcluded method.name()
         conflicting.push method
       else
         missing.push method
@@ -69,33 +67,15 @@ class ToClass extends Application
 
     for method in @role().methods()
       @_applyMethod method
-      @_applyMaybeAliasedMethod method
 
     return
 
   _applyMethod: (method) ->
-    return if @methodIsExcluded method.name()
-
     existingMethod = @class().methodNamed method.name()
     if existingMethod? && existingMethod.body().toString() != method.body().toString()
       return
 
     @class().addMethod method.clone()
-
-  _applyMaybeAliasedMethod: (method) ->
-    return unless @methodIsAliased method.name()
-
-    aliasedName = @aliasForMethod method.name()
-
-    existingMethod = @class().methodNamed aliasedName
-
-    if existingMethod? && existingMethod.body().toString() != method.body().toString()
-      message = "Cannot create a method alias if a local method of the same name exists - #{aliasedName}"
-      throw new Error message
-
-    @class().addMethod method.clone name: aliasedName
-
-    return
 
   role: ->
     return @_role
