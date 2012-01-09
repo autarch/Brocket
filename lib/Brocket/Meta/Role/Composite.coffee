@@ -22,7 +22,8 @@ class Composite extends Role
     return
 
   applyCompositionArgs: (args) ->
-    (new roleSummationClass args).apply @
+    rsclass = @roleSummationClass()
+    (new rsclass args).apply @
     return @
 
   roles: ->

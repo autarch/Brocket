@@ -6,17 +6,16 @@ util        = require "util"
 class RoleSummation extends Application
   constructor: (args) ->
     @_roleParams = args.roleParams
-
-    @_normalizeRoleParams()
-
     return
 
   _normalizeRoleParams: ->
+    rp = @roleParams()
+
     for role in @compositeRole().roles()
       name = role.name()
 
       rp[name] ?= {}
-      rp[name]["-aliases"] ?= {}
+      rp[name]["-alias"] ?= {}
       rp[name]["-excludes"] =
         if rp[name]["-excludes"]?
           Helpers.arrayToObject rp[name]["-excludes"]
@@ -27,7 +26,7 @@ class RoleSummation extends Application
 
   apply: (compositeRole) ->
     @_compositeRole = compositeRole
-
+    @_normalizeRoleParams()
     super
 
   _checkRequiredMethods: ->
@@ -40,7 +39,8 @@ class RoleSummation extends Application
         continue if _.any( roles, (r) -> r.hasMethod m.name() )
         allRequired.push m
 
-    compositeRole().addRequiredMethods allRequired
+    for m in allRequired
+      @compositeRole().addRequiredMethod m
 
     return
 
@@ -65,7 +65,8 @@ class RoleSummation extends Application
 
       seen[ attr.name() ] = attr
 
-    @compositeRole().addAttribute attr.clone() for attr in AllAttributes
+    for attr in allAttributes
+      @compositeRole().addAttribute attr.clone()
 
     return
 
@@ -92,9 +93,9 @@ class RoleSummation extends Application
     for method in allMethods
       continue if conflicts[ method.name ]
 
-      seen = seen[ method.name ]
-      if seen?
-        if seen.method.body().toString() != method.method.body().toString()
+      saw = seen[ method.name ]
+      if saw?
+        if saw.method.body().toString() != method.method.body().toString()
           @compositeRole().addConflictingMethod method.name
           delete methodMap[ method.name ]
           conflicts[ method.name ] = true
@@ -111,14 +112,10 @@ class RoleSummation extends Application
     return _.any @compositeRole().roles(), (r) -> r.aliasForMethod name
 
   _methodIsExcludedForRole: (role, name) ->
-    return @roleParams[role]["-excludes"][name]?
+    return @roleParams()[role]["-excludes"][name]?
 
   _methodAliasForRole: (role, name) ->
-    return @roleParams[role]["-alias"][name]
-
-  applymethods: ->
-
-  applyAttributes: ->
+    return @roleParams()[role]["-alias"][name]
 
   roleParams: ->
     @_roleParams

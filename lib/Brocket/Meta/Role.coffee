@@ -1,11 +1,11 @@
 _                 = require "underscore"
 Attribute         = require "./Attribute"
 Cache             = require "./Cache"
-Composite         = require "./Role/Composite"
 ConflictingMethod = require "./Role/ConflictingMethod"
 HasAttributes     = require "./Mixin/HasAttributes"
 HasMethods        = require "./Mixin/HasMethods"
 HasRoles          = require "./Mixin/HasRoles"
+Helpers          = require "./Mixin/HasRoles"
 RequiredMethod    = require "./Role/RequiredMethod"
 RoleAttribute     = require "./Role/Attribute"
 ToClass           = require "./Role/Application/ToClass"
@@ -13,7 +13,8 @@ ToInstance        = null #require "./Role/Application/ToInstance"
 ToRole            = require "./Role/Application/ToRole"
 util              = require "util"
 
-Class = null
+Class     = null
+Composite = null
 
 class Role
   for own key of HasAttributes.prototype
@@ -66,16 +67,19 @@ class Role
 
     return
 
-  @Combine = (roles...) ->
-    optList = Helpers.optList roles, { lhs: Role }
+  @Combine = (rolesWithArgs) ->
+    Composite ?= require "./Role/Composite"
 
     roles = []
-    args = {}
-    for i in [0..optList.length] by 2
-      role = optList[i]
-      roles.push role
-      args[ role.name() ] = optsList[ i + 1 ]
+    args  = {}
 
+    for i in [ 0 .. rolesWithArgs.length - 1 ] by 2
+      role = rolesWithArgs[i]
+      roles.push role
+      args[ role.name() ] = rolesWithArgs[ i + 1 ]
+
+    # XXX - need to allow each role to provide traits to be applied to the
+    # Composite class
     composite = new Composite roles: roles
     return composite.applyCompositionArgs roleParams: args
 

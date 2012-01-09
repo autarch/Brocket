@@ -28,15 +28,15 @@ module.exports.applyRoles = (applyTo, roles...) ->
   if roles[0] instanceof Array
     roles = roles[0]
 
-  optList = module.exports.optList roles, { lhs: Role }
+  rolesWithArgs = module.exports.optList roles, { lhs: Role }
 
-  if optList.length == 2
-    role = optList[0]
-    args = optList[1]
+  if rolesWithArgs.length == 2
+    role = rolesWithArgs[0]
+    args = rolesWithArgs[1]
 
     role.apply applyTo, args
   else
-    (Role.combine optList).apply applyTo
+    (Role.Combine rolesWithArgs).apply applyTo
 
   return
 
@@ -54,7 +54,7 @@ module.exports.optList = (list, args) ->
     if lhsTest item
       pairs.push [item]
     else if item instanceof Object
-      pairs[-1].push item
+      pairs[ pairs.length - 1 ].push item
 
   retVal = []
   for pair in pairs
