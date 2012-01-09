@@ -57,8 +57,6 @@ class RoleSummation extends Application
     allMethods = []
 
     for role in roles
-      roleName = role.name()
-
       for method in role.methods()
         allMethods.push { role: role, name: method.name(), method: method }
 
@@ -72,11 +70,12 @@ class RoleSummation extends Application
       saw = seen[ method.name ]
       if saw?
         if saw.method.body() != method.method.body()
-          @compositeRole().addConflictingMethod method.name
+          @compositeRole().addConflictingMethod name: method.name, roles: [ method.role, saw.role ]
           delete methodMap[ method.name ]
           conflicts[ method.name ] = true
           continue
 
+      seen[ method.name ] = method
       methodMap[ method.name ] = method.method
 
     for name, method of methodMap

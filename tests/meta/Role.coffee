@@ -175,6 +175,7 @@ test "role application to a role", (t) ->
 
 test "role summation", (t) ->
   Cache._clearMetaObjects()
+
   roleA = new Role name: "RoleA"
   roleA.addMethod name: "foo", body: -> 42
   roleA.addMethod name: "bar", body: -> 42
@@ -188,5 +189,36 @@ test "role summation", (t) ->
 
   for name in [ "foo", "bar", "baz", "buz" ]
     t.ok (metaclass.hasMethod name), "metaclass has #{name} method after consuming RoleA and RoleB"
+
+  roleC = new Role name: "RoleC"
+  roleC.addMethod name: "foo", body: -> 43
+
+  metaclass = new Class name: "MyClass2"
+  func = -> Helpers.applyRoles metaclass, [ roleA, roleC ]
+  t.throws func, {
+      name:    "Error",
+      message: "The following method conflicts were detected:\n'foo' conflicts in RoleC and RoleA",
+    },
+    "got a method conflict error when applying RoleA and RoleC"
+
+  metaclass = new Class name: "MyClass3"
+  metaclass.addMethod name: "foo", body: -> 42 + 43
+  func = -> Helpers.applyRoles metaclass, [ roleA, roleC ]
+
+  t.doesNotThrow func, "no method conflict error when applying RoleA and RoleC because metaclass resolves the conflict"
+
+  roleD = new Role name: "RoleD"
+  roleD.addAttribute name: "foo", access: "ro"
+
+  roleE = new Role name: "RoleE"
+  roleE.addAttribute name: "foo", access: "rw"
+
+  metaclass = new Class name: "MyClass4"
+  func = -> Helpers.applyRoles metaclass, [ roleD, roleE ]
+  t.throws func, {
+      name:    "Error",
+      message: "We have encountered an attribute conflict with 'foo' during role composition. This attribute is defined in both RoleE and foo.  This is a fatal error and cannot be disambiguated.",
+    },
+    "got an attribute conflict error when applying RoleD and RoleE"
 
   t.end()

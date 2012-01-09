@@ -34,7 +34,7 @@ class ToClass extends Application
       message = "The following method conflicts were detected:"
       for conflict in conflicting
         roles = (_.map conflict.roles(), (r) -> r.name() ).join " and "
-        message += "\n\"#{ conflict.name() }\" conflicts in #{roles}"
+        message += "\n'#{ conflict.name() }' conflicts in #{roles}"
 
       messages.push message
 
