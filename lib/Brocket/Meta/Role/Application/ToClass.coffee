@@ -71,11 +71,10 @@ class ToClass extends Application
     return
 
   _applyMethod: (method) ->
-    existingMethod = @class().methodNamed method.name()
-    if existingMethod? && existingMethod.body() != method.body()
-      return
-
+    return if @class().hasMethod method.name()
     @class().addMethod method.clone()
+
+    return
 
   role: ->
     return @_role
