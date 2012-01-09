@@ -6,12 +6,14 @@ Attribute      = require "../../lib/Brocket/Meta/Attribute";
 Base           = require "../../lib/Brocket/Base"
 Cache          = require "../../lib/Brocket/Meta/Cache"
 Class          = require "../../lib/Brocket/Meta/Class"
+Helpers        = require "../../lib/Brocket/Helpers"
 Method         = require "../../lib/Brocket/Meta/Method"
 RequiredMethod = require "../../lib/Brocket/Meta/Role/RequiredMethod"
 Role           = require "../../lib/Brocket/Meta/Role"
 RoleAttribute  = require "../../lib/Brocket/Meta/Role/Attribute"
 
 test "role basics", (t) ->
+  Cache._clearMetaObjects()
   role = new Role name: "MyRole"
 
   t.equal role.name(), "MyRole", "name returns MyRole"
@@ -59,20 +61,21 @@ test "role basics", (t) ->
   t.end()
 
 test "role metaobject cache", (t) ->
-  role1 = new Role name: "MyRole3"
+  Cache._clearMetaObjects()
+
+  role1 = new Role name: "MyRole1"
   role1._arbitrary = 42
 
-  role2 = new Role name: "MyRole3"
+  role1Clone = new Role name: "MyRole1"
 
-  t.equal role1, role2, "two roles with the same name are the same object"
-  t.equal role2._arbitrary, 42, "really ensure that the two objects are the same"
+  t.equal role1, role1Clone, "two roles with the same name are the same object"
+  t.equal role1Clone._arbitrary, 42, "really ensure that the two objects are the same"
 
-  role3 = new Role name: "MyRole3", cache: false
+  role1Also = new Role name: "MyRole1", cache: false
+  t.ok role1 != role1Also, "can explicitly not cache a role"
 
-  t.ok role1 != role3, "can explicitly not cache a class"
-
-  role4 = new Role name: "MyRole4", cache: false
-  t.ok (!Cache.metaObjectExists "MyRole4"), "MyRole4 role is not in the meta object cache"
+  role2 = new Role name: "MyRole2", cache: false
+  t.ok (!Cache.metaObjectExists "MyRole2"), "MyRole2 role is not in the meta object cache"
 
   Cache._clearMetaObjects()
 
@@ -88,7 +91,9 @@ test "role metaobject cache", (t) ->
   t.end()
 
 test "role application to a class", (t) ->
-  role = new Role name: "MyRole5"
+  Cache._clearMetaObjects()
+
+  role = new Role name: "MyRole"
   role.addAttribute name: "name", access: "ro"
   role.addAttribute name: "size", access: "rw"
   role.addAttribute name: "level", access: "rw"
@@ -98,7 +103,7 @@ test "role application to a class", (t) ->
   role.addMethod name: "baz", body: -> return @bar()
   role.addMethod name: "quux", body: -> return @something()
 
-  metaclass = new Class name: "MyClass5"
+  metaclass = new Class name: "MyClass"
   metaclass.setSuperclasses Base
   metaclass.addAttribute name: "level", access: "ro"
   metaclass.addAttribute name: "label"
@@ -109,7 +114,7 @@ test "role application to a class", (t) ->
   t.doesNotThrow func, "no error applying role to class"
 
   t.ok (metaclass.doesRole role), "class does the role (role provided as object)"
-  t.ok (metaclass.doesRole "MyRole5"), "class does the role (role provided as name)"
+  t.ok (metaclass.doesRole "MyRole"), "class does the role (role provided as name)"
 
   for name in [ "name", "size", "level", "label" ]
     t.ok (metaclass.hasAttribute name), "class has an attribute named #{name}"
@@ -123,71 +128,98 @@ test "role application to a class", (t) ->
   t.equal metaclass.roleApplications().length, 1, "class has one role application object"
   t.equivalent metaclass.roles(), [role], "roles() returns list of roles for the class"
 
-  MyClass5 = metaclass.class()
-  obj = new MyClass5 name: "a name", size: 42
+  MyClass = metaclass.class()
+  obj = new MyClass name: "a name", size: 42
 
-  t.ok obj, "MyClass5 constructor returns something"
-  t.equal obj.name(), "a name", "can call name() method on an object of MyClass5"
+  t.ok obj, "MyClass constructor returns something"
+  t.equal obj.name(), "a name", "can call name() method on an object of MyClass"
   t.equal obj.ignored(), 13, "ignored() calls class method, not role method"
   t.equal obj.quux(), 14, "method from role can call method from class"
 
-  metaclass = new Class name: "MyClass6"
+  metaclass = new Class name: "MyClass2"
   role.apply metaclass, "-excludes": "foo"
 
-  t.ok (metaclass.doesRole role), "MyClass6 does MyRole5"
+  t.ok (metaclass.doesRole role), "MyClass2 does MyRole"
   t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
 
-  metaclass = new Class name: "MyClass7"
+  metaclass = new Class name: "MyClass3"
   role.apply metaclass, "-excludes": ["foo"]
 
-  t.ok (metaclass.doesRole role), "MyClass7 does MyRole5"
+  t.ok (metaclass.doesRole role), "MyClass3 does MyRole"
   t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
 
-  metaclass = new Class name: "MyClass8"
+  metaclass = new Class name: "MyClass4"
   role.apply metaclass, "-excludes": "foo", "-aliases": { foo: "foo2" }
 
-  t.ok (metaclass.doesRole role), "MyClass8 does MyRole5"
+  t.ok (metaclass.doesRole role), "MyClass4 does MyRole"
   t.ok (! metaclass.hasMethod "foo"), "excluded method is not applied to the class"
   t.ok (metaclass.hasMethod "foo2"), "aliased method is applied to the class"
 
-  metaclass = new Class name: "MyClass8"
+  metaclass = new Class name: "MyClass5"
   role.apply metaclass, "-aliases": { foo: "foo2" }
 
-  t.ok (metaclass.doesRole role), "MyClass8 does MyRole5"
+  t.ok (metaclass.doesRole role), "MyClass5 does MyRole"
   t.ok (metaclass.hasMethod "foo"), "aliased method original name is applied to the class"
   t.ok (metaclass.hasMethod "foo2"), "aliased method is applied to the class"
 
   t.end()
 
 test "role application to a role", (t) ->
-  role6 = new Role name: "MyRole6"
-  role6.addAttribute name: "name", access: "ro"
-  role6.addAttribute name: "size", access: "rw"
-  role6.addAttribute name: "level", access: "rw"
-  role6.addMethod name: "foo", body: -> 42
-  role6.addMethod name: "bar", body: -> 84
-  role6.addMethod name: "consumerWins", body: -> 13
-  role6.addMethod name: "baz", body: -> return @bar()
-  role6.addMethod name: "quux", body: -> return @something()
+  Cache._clearMetaObjects()
 
-  role7 = new Role name: "MyRole7"
-  role7.addAttribute name: "level", access: "ro"
-  role7.addAttribute name: "label"
-  role7.addMethod name: "consumerWins", body: -> "x"
-  role7.addMethod name: "something", body: -> 14
+  roleA = new Role name: "MyRoleA"
+  roleA.addAttribute name: "name", access: "ro"
+  roleA.addAttribute name: "size", access: "rw"
+  roleA.addAttribute name: "level", access: "rw"
+  roleA.addMethod name: "foo", body: -> 42
+  roleA.addMethod name: "bar", body: -> 84
+  roleA.addMethod name: "consumerWins", body: -> 13
+  roleA.addMethod name: "baz", body: -> return @bar()
+  roleA.addMethod name: "quux", body: -> return @something()
 
-  func = -> role6.apply role7
-  t.doesNotThrow func, "no error applying MyRole6 to MyRole7"
+  roleB = new Role name: "MyRoleB"
+  roleB.addAttribute name: "level", access: "ro"
+  roleB.addAttribute name: "label"
+  roleB.addMethod name: "consumerWins", body: -> "x"
+  roleB.addMethod name: "something", body: -> 14
 
-  t.ok (role7.hasAttribute "name"), "MyRole7 has a name attribute"
-  t.ok (role7.hasMethod "foo"), "MyRole7 has a foo attribute"
+  func = -> roleA.apply roleB
+  t.doesNotThrow func, "no error applying MyRoleA to MyRoleB"
 
-  metaclass = new Class name: "MyClass9"
-  func = -> role7.apply metaclass
-  t.doesNotThrow func, "can apply MyRole7 to a class"
+  t.ok (roleB.hasAttribute "name"), "MyRoleB has a name attribute"
+  t.ok (roleB.hasMethod "foo"), "MyRoleB has a foo attribute"
 
-  MyClass9 = metaclass.class()
-  obj = new MyClass9
+  metaclass = new Class name: "MyClass"
+  func = -> roleB.apply metaclass
+  t.doesNotThrow func, "can apply MyRoleB to a class"
+
+  MyClass = metaclass.class()
+  obj = new MyClass
   t.equal obj.consumerWins(), "x", "no conflict with method of same name when one role consumes another - consumer wins"
+
+  t.end()
+
+test "role summation", (t) ->
+  Cache._clearMetaObjects()
+  roleA = new Role name: "RoleA"
+  roleA.addMethod name: "foo", body: -> 42
+  roleA.addMethod name: "bar", body: -> 42
+
+  roleB = new Role name: "RoleB"
+  roleB.addMethod name: "baz", body: -> 42
+  roleB.addMethod name: "buz", body: -> 42
+
+  metaclass = new Class name: "MyClass1"
+  Helpers.applyRoles metaclass, [ roleA, roleB ]
+
+  for name in [ "foo", "bar", "baz", "buz" ]
+    t.ok (metaclass.hasMethod name), "metaclass has #{name} method after consuming RoleA and RoleB"
+
+  metaclass = new Class name: "MyClass2"
+  Helpers.applyRoles metaclass, [ roleA, { "-excludes": "foo" }, roleB ]
+
+  t.ok (! metaclass.hasMethod "foo"), "foo method was excluded during role summation"
+  for name in [ "bar", "baz", "buz" ]
+    t.ok (metaclass.hasMethod name), "metaclass has #{name} method after consuming RoleA and RoleB"
 
   t.end()
