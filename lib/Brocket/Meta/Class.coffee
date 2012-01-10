@@ -121,7 +121,8 @@ class Class
 
     return instance
 
-  # XXX - this needs to be redone to use the C3 algorithm
+  # XXX - this needs to be redone to use the C3 algorithm (or we can just not
+  # support multiple inheritance, which is ok too).
   linearizedInheritance: ->
     metas = [];
 
@@ -130,6 +131,12 @@ class Class
 
       for meta in supermeta.linearizedInheritance()
         metas.push meta
+
+    return metas
+
+  selfAndParents: ->
+    metas = @linearizedInheritance()
+    metas.unshift @
 
     return metas
 

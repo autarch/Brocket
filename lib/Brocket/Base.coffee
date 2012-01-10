@@ -17,6 +17,10 @@ class Base
       return params ? {}
 
   BUILDALL: (params) ->
+    for meta in @meta().selfAndParents().reverse()
+      build = meta.methodNamed "BUILD"
+      build.body().call @, params if build?
+
     return
 
   DOES: (role) ->
