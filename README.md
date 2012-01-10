@@ -45,7 +45,7 @@ Person = Brocket.makeClass( "Person", function (B) {
     B.has( "age",       { access: "ro", default: 0 } );
 
     B.method( "greet", function () {
-        console.log "Hi, my name is " + this.firstName() + "."
+        console.log "Hi, my name is " + this.firstName() + ".";
     } );
 } );
 
@@ -78,4 +78,17 @@ bob.greet()
 if ( bob.login(password) ) {
     ....
 }
+```
+
+Here's a class example in CoffeeScript
+
+```coffeescript
+Brocket = require "Brocket"
+Person = Brocket.makeClass "Person", (B) ->
+    B.has "firstName", access: "ro"
+    B.has "lastName",  access: "ro"
+    B.has "age",       access: "ro", default: 0
+
+    B.method "greet", ->
+        console.log "Hi, my name is #{ @firstName() }."
 ```
