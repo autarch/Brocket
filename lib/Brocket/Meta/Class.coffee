@@ -47,24 +47,26 @@ class Class
     return
 
   _makeClass: (klass) ->
-    if !klass
-      klass = (params...) ->
-        @constructor.meta().constructInstance @, params
+    meta = @
 
-    klass.meta           = => @
-    klass.prototype.meta = => @
+    if !klass
+      klass = ->
+        args = [@].concat Array.prototype.slice.call arguments
+        meta.constructInstance.apply meta, args
+
+    klass.meta           = => meta
+    klass.prototype.meta = => meta
 
     klass.prototype._super = ->
       error = new Error
 
-      meta = @constructor.meta()
       caller = meta._callerFromError error, "_super"
 
       ancestors = meta.linearizedInheritance()
       for supermeta in ancestors
         superclass = supermeta.class()
         if Object.prototype.hasOwnProperty.call superclass.prototype, caller
-          return superclass.prototype[caller].apply @, arguments
+          return superclass.prototype[caller].apply @, Array.prototype.slice.call arguments
 
       name = (s) -> s.name()
       supernames = (name s for s in ancestors)
