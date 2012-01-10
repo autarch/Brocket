@@ -100,6 +100,7 @@ class Class
     for meta in @_superclasses
       for own name, method of meta._methodMap()
         continue if @hasMethod name
+        continue unless method.isInheritable()
         @addMethod method.clone()
 
     return

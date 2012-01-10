@@ -50,4 +50,14 @@ class Method
     delete @_associatedMeta
     return
 
+  # XXX - this is a horrible, horrible, horrible hack - it's necessary because
+  # of the wonky way inheritance is currently being handled
+  isInheritable: ->
+    name = @name()
+    if name == "BUILD" || name == "BUILDARGS"
+      meta = @associatedMeta()
+      return false unless meta? && meta.name() == "Brocket.Base"
+
+    return true
+
 module.exports = Method
