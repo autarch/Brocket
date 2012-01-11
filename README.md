@@ -1,4 +1,4 @@
-# Brocket - (Meta)Class Framework with Roles
+# Brocket - A self-hosting and self-extensible (meta)class system for Javascript
 
 ## Install
 
