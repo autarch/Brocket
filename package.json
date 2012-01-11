@@ -27,7 +27,7 @@
     },
     "scripts": {
         "prepublish":  "cake build",
-        "postpublish": "find lib -name *.js | xargs rm",
-        "test":        "cake build && ./run-tests"
+        "postpublish": "cake clean",
+        "test":        "cake build && cake test"
     }
 }
