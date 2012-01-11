@@ -1,5 +1,0 @@
-#!/bin/bash
-
-PATH=$PATH:node_modules/tap/bin
-
-tap.js --stderr ./tests
