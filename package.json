@@ -5,7 +5,7 @@
         "url":   "http://blog.urth.org"
     },
     "name":        "Brocket",
-    "version":     "0.0.1",
+    "version":     "0.0.2",
     "description": "A self-hosting and self-extensible (meta)class system for JavaScript",
     "homepage":    "https://github.com/autarch/Brocket",
     "bugs":        "https://github.com/autarch/Brocket/issues",
