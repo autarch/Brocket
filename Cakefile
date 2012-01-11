@@ -2,7 +2,6 @@ child  = require "child_process"
 fs     = require "fs"
 path   = require "path"
 muffin = require "muffin"
-util   = require "util"
 
 task "build", "compile coffeescript → javascript", (options) ->
   muffin.run
