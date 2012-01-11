@@ -27,6 +27,6 @@
     },
     "scripts": {
         "prepublish": "cake build",
-        "test":       "cake build && cake test"
+        "test":       "cake test"
     }
 }
