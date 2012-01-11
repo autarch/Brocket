@@ -26,8 +26,7 @@
         "tap":           "*"
     },
     "scripts": {
-        "prepublish":  "cake build",
-        "postpublish": "cake clean",
-        "test":        "cake build && cake test"
+        "prepublish": "cake build",
+        "test":       "cake build && cake test"
     }
 }
