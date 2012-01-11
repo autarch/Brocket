@@ -2,13 +2,13 @@
 
 ## Install
 
-```
+```bash
 npm install Brocket
 ```
 
 or for a global install
 
-```
+```bash
 npm install -g Brocket
 ```
 
