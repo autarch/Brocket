@@ -11,3 +11,4 @@ tests/*/*/*.js
 #*#
 .#*
 *.tgz
+npm-debug.log
