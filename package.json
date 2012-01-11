@@ -1,8 +1,14 @@
 {
-    "author": "Dave Rolsky <autarch@urth.org> (http://blog.urth.org)",
+    "author": {
+        "name":  "Dave Rolsky",
+        "email": "autarch@urth.org",
+        "url":   "http://blog.urth.org"
+    },
     "name": "Brocket",
-    "description": "A self-hosting and self-extensible (meta)class system for JavaScript",
     "version": "0.0.1",
+    "description": "A self-hosting and self-extensible (meta)class system for JavaScript",
+    "homepage": "https://github.com/autarch/Brocket",
+    "bugs": "https://github.com/autarch/Brocket/issues",
     "repository": {
         "type": "git",
         "url": "git://github.com/autarch/Brocket.git"
@@ -17,5 +23,8 @@
     "devDependencies": {
         "coffee-script": "1.1.3",
         "tap": "*"
+    },
+    "scripts": {
+        "prepublish": "find -type f -name *.coffee | xargs coffee -c"
     }
 }
