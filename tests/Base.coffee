@@ -42,9 +42,9 @@ test "BUILD methods", (t) ->
 test "BUILDARGS", (t) ->
   Cache._clearMetaObjects()
 
-  Foo = Brocket.makeClass "Foo", (B) ->
-    B.has "name"
-    B.method "BUILDARGS", (args) ->
+  Foo = Brocket.makeClass "Foo", (F) ->
+    F.has "name", access: "ro"
+    F.method "BUILDARGS", (args) ->
       if typeof args == "string"
         return { name: args }
       else
