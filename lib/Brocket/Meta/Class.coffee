@@ -207,7 +207,7 @@ class Class
         continue
       else
         continue unless next
-        return line.match( /\.(\w+) \(/ )[1]
+        return line.match( /\.(\w+) [\(\[]/ )[1]
 
     return
 
