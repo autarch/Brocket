@@ -207,7 +207,10 @@ class Class
         continue
       else
         continue unless next
-        return line.match( /\.(\w+) [\(\[]/ )[1]
+        if m = line.match( /\[as (\w+)\]/ )
+          return m[1]
+        else
+          return line.match( /\.(\w+) [\(\[]/ )[1]
 
     return
 
