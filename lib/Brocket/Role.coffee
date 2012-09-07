@@ -1,5 +1,5 @@
-Helpers = require "../Brocket/Helpers"
-Role    = require "../Brocket/Meta/Role"
+Helpers = require "./Helpers"
+Role    = require "./Meta/Role"
 util    = require "util"
 
 _has = (meta, name, attr) ->
