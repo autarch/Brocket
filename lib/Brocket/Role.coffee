@@ -1,38 +1,33 @@
-`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
+Helpers = require "./Helpers"
+Role    = require "./Meta/Role"
+util    = require "util"
 
-define (require) ->
-  Helpers = require "./Helpers"
-  Role    = require "./Meta/Role"
-  util    = require "util"
+_has = (meta, name, attr) ->
+  clone = name: name
+  for own key, val of attr
+    clone[key] = val
 
-  _has = (meta, name, attr) ->
-    clone = name: name
-    for own key, val of attr
-      clone[key] = val
+  meta.addAttribute clone
 
-    meta.addAttribute clone
+_method = (meta, name, body) ->
+  meta.addMethod name: name, body: body, source: meta
 
-  _method = (meta, name, body) ->
-    meta.addMethod name: name, body: body, source: meta
+_with = (meta, roles) ->
+  Helpers.applyRoles meta, roles
 
-  _with = (meta, roles) ->
-    Helpers.applyRoles meta, roles
+_consumes = (meta, name, options) ->
 
-  _consumes = (meta, name, options) ->
+module.exports.makeRole = (name, definition) ->
+  role = new Role name: name
 
-  makeRole = (name, definition) ->
-    role = new Role name: name
+  B = {}
+  B.has        = (name, attr)    -> _has role, name, attr
+  B.method     = (name, body)    -> _method role, name, body
+  B.with       = (roles...)      -> _with role, roles
+  B.consumes   = (role, options) -> _consumes role, role, options
 
-    B = {}
-    B.has        = (name, attr)    -> _has role, name, attr
-    B.method     = (name, body)    -> _method role, name, body
-    B.with       = (roles...)      -> _with role, roles
-    B.consumes   = (role, options) -> _consumes role, role, options
+  definition ?= -> return
 
-    definition ?= -> return
+  definition.call @, B
 
-    definition.call @, B
-
-    return role
-
-  return { makeRole: makeRole }
+  return role

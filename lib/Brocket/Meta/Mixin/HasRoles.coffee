@@ -1,40 +1,39 @@
-`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
+_    = require "underscore"
+util = require "util"
 
-define (require) ->
-  _    = require "underscore"
-  util = require "util"
+Role = null
 
-  Role = null
+class HasRoles
+  _buildRoleProperties: ->
+    Role ?= require "../Role"
 
-  class HasRoles
-    _buildRoleProperties: ->
-      Role ?= require "../Role"
+    @_localRoles = []
+    @_roleApplications = []
 
-      @_localRoles = []
-      @_roleApplications = []
+  addRole: (role) ->
+    @localRoles().push role
+    return
 
-    addRole: (role) ->
-      @localRoles().push role
-      return
+  doesRole: (role) ->
+    name =
+     if role instanceof Role
+        role.name()
+      else
+        role
 
-    doesRole: (role) ->
-      name =
-       if role instanceof Role
-          role.name()
-        else
-          role
+    for role in @roles()
+      return true if role.name() == name
 
-      for role in @roles()
-        return true if role.name() == name
+    return false
 
-      return false
+  addRoleApplication: (application) ->
+    @roleApplications().push application
+    return
 
-    addRoleApplication: (application) ->
-      @roleApplications().push application
-      return
+  localRoles: ->
+    @_localRoles
 
-    localRoles: ->
-      @_localRoles
+  roleApplications: ->
+    @_roleApplications
 
-    roleApplications: ->
-      @_roleApplications
+module.exports = HasRoles
