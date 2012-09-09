@@ -3,6 +3,9 @@ fs     = require "fs"
 path   = require "path"
 muffin = require "muffin"
 
+env = process.env
+env["PATH"] = env["PATH"] + ":" + process.cwd() + "/node_modules/coffee-script/bin"
+
 task "build", "compile coffeescript → javascript", (options) ->
   muffin.run
     options: options,
@@ -28,7 +31,9 @@ task "clean", "clean up any compiled code", (options) ->
         fs.unlinkSync m[1]
 
 task "test", "run all tests", (options) ->
-  tap = child.spawn "./node_modules/tap/bin/tap.js", [ "--stderr", "./tests" ]
+  args = [ "--stderr", "./tests" ]
+
+  tap = child.spawn "./node_modules/tap/bin/tap.js", args
   tap.stdout.on "data", (data) ->
     process.stdout.write data.toString()
 
