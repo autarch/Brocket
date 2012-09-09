@@ -1,92 +1,93 @@
-_           = require "underscore"
-Application = require "../Application"
-Helpers     = require "../../../Helpers"
-util        = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class RoleSummation extends Application
-  constructor: (args) ->
-    @_roleParams = args.roleParams
-    return
+define (require) ->
+  _           = require "underscore"
+  Application = require "../Application"
+  Helpers     = require "../../../Helpers"
+  util        = require "util"
 
-  apply: (compositeRole) ->
-    @_compositeRole = compositeRole
-    super
+  class RoleSummation extends Application
+    constructor: (args) ->
+      @_roleParams = args.roleParams
+      return
 
-  _checkRequiredMethods: ->
-    roles = @compositeRole().roles()
+    apply: (compositeRole) ->
+      @_compositeRole = compositeRole
+      super
 
-    allRequired = []
-    for role in roles
-      for m in role.requiredMethods()
-        continue if _.any( roles, (r) -> r.hasMethod m.name() )
-        allRequired.push m
+    _checkRequiredMethods: ->
+      roles = @compositeRole().roles()
 
-    for m in allRequired
-      @compositeRole().addRequiredMethod m
+      allRequired = []
+      for role in roles
+        for m in role.requiredMethods()
+          continue if _.any( roles, (r) -> r.hasMethod m.name() )
+          allRequired.push m
 
-    return
+      for m in allRequired
+        @compositeRole().addRequiredMethod m
 
-  _applyAttributes: ->
-    allAttributes = []
-    for role in @compositeRole().roles()
-      allAttributes = allAttributes.concat role.attributes()
+      return
 
-    seen = {}
-    for attr in allAttributes
-      name = attr.name()
+    _applyAttributes: ->
+      allAttributes = []
+      for role in @compositeRole().roles()
+        allAttributes = allAttributes.concat role.attributes()
 
-      if seen[name]
-        role1 = attr.associatedRole().name()
-        role2 = seen[name].name()
+      seen = {}
+      for attr in allAttributes
+        name = attr.name()
 
-        message = "We have encountered an attribute conflict with '#{name}'" +
-                  " during role composition." +
-                  " This attribute is defined in both #{role1} and #{role2}. " +
-                  " This is a fatal error and cannot be disambiguated."
-        throw new Error message
+        if seen[name]
+          role1 = attr.associatedRole().name()
+          role2 = seen[name].name()
 
-      seen[ attr.name() ] = attr
+          message = "We have encountered an attribute conflict with '#{name}'" +
+                    " during role composition." +
+                    " This attribute is defined in both #{role1} and #{role2}. " +
+                    " This is a fatal error and cannot be disambiguated."
+          throw new Error message
 
-    for attr in allAttributes
-      @compositeRole().addAttribute attr.clone()
+        seen[ attr.name() ] = attr
 
-    return
+      for attr in allAttributes
+        @compositeRole().addAttribute attr.clone()
 
-  _applyMethods: ->
-    roles = @compositeRole().roles()
-    allMethods = []
+      return
 
-    for role in roles
-      for method in role.methods()
-        allMethods.push { role: role, name: method.name(), method: method }
+    _applyMethods: ->
+      roles = @compositeRole().roles()
+      allMethods = []
 
-    seen = {}
-    conflicts = {}
-    methodMap = {}
+      for role in roles
+        for method in role.methods()
+          allMethods.push { role: role, name: method.name(), method: method }
 
-    for method in allMethods
-      continue if conflicts[ method.name ]
+      seen = {}
+      conflicts = {}
+      methodMap = {}
 
-      saw = seen[ method.name ]
-      if saw?
-        if saw.method.body() != method.method.body()
-          @compositeRole().addConflictingMethod name: method.name, roles: [ method.role, saw.role ]
-          delete methodMap[ method.name ]
-          conflicts[ method.name ] = true
-          continue
+      for method in allMethods
+        continue if conflicts[ method.name ]
 
-      seen[ method.name ] = method
-      methodMap[ method.name ] = method.method
+        saw = seen[ method.name ]
+        if saw?
+          if saw.method.body() != method.method.body()
+            @compositeRole().addConflictingMethod name: method.name, roles: [ method.role, saw.role ]
+            delete methodMap[ method.name ]
+            conflicts[ method.name ] = true
+            continue
 
-    for name, method of methodMap
-      @compositeRole().addMethod method.clone name: name
+        seen[ method.name ] = method
+        methodMap[ method.name ] = method.method
 
-    return
+      for name, method of methodMap
+        @compositeRole().addMethod method.clone name: name
 
-  roleParams: ->
-    @_roleParams
+      return
 
-  compositeRole: ->
-    @_compositeRole
+    roleParams: ->
+      @_roleParams
 
-module.exports = RoleSummation
+    compositeRole: ->
+      @_compositeRole

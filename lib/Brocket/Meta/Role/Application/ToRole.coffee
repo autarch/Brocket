@@ -1,55 +1,56 @@
-_           = require "underscore"
-Application = require "../Application"
-util        = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class ToRole extends Application
-  apply: (appliedRole, receivingRole) ->
-    @_appliedRole   = appliedRole
-    @_receivingRole = receivingRole
+define (require) ->
+  _           = require "underscore"
+  Application = require "../Application"
+  util        = require "util"
 
-    super
+  class ToRole extends Application
+    apply: (appliedRole, receivingRole) ->
+      @_appliedRole   = appliedRole
+      @_receivingRole = receivingRole
 
-    @receivingRole().addRole @appliedRole()
-    @receivingRole().addRoleApplication @
+      super
 
-    return
+      @receivingRole().addRole @appliedRole()
+      @receivingRole().addRoleApplication @
 
-  _checkRequiredMethods: ->
-    for method in @appliedRole().requiredMethods()
-      continue if @receivingRole().hasMethod method.name()
-      @receivingRole().addRequiredMethod method
+      return
 
-    return
+    _checkRequiredMethods: ->
+      for method in @appliedRole().requiredMethods()
+        continue if @receivingRole().hasMethod method.name()
+        @receivingRole().addRequiredMethod method
 
-  _applyAttributes: ->
-    for attr in @appliedRole().attributes()
-      if @receivingRole().hasAttribute attr.name() && @receivingRole().attributeNamed attr.name() != attr
-        unless @receivingrole().attributeNamed attribute.name() == attribute
-          message = "There was an attribute conflict while composing" +
-            "#{ @appliedRole().name() } into #{ @receivingRole().name() }." +
-            "This is a fatal error and cannot be disambiguated." +
-            "The conflict attribute is named '#{ attr.name() }'"
-          throw new Error message
+      return
 
-      @receivingRole().addAttribute attr.clone()
+    _applyAttributes: ->
+      for attr in @appliedRole().attributes()
+        if @receivingRole().hasAttribute attr.name() && @receivingRole().attributeNamed attr.name() != attr
+          unless @receivingrole().attributeNamed attribute.name() == attribute
+            message = "There was an attribute conflict while composing" +
+              "#{ @appliedRole().name() } into #{ @receivingRole().name() }." +
+              "This is a fatal error and cannot be disambiguated." +
+              "The conflict attribute is named '#{ attr.name() }'"
+            throw new Error message
 
-    return
+        @receivingRole().addAttribute attr.clone()
 
-  _applyMethods: ->
-    for method in @appliedRole().methods()
-      @_applyMethod method
+      return
 
-    return
+    _applyMethods: ->
+      for method in @appliedRole().methods()
+        @_applyMethod method
 
-  _applyMethod: (method) ->
-    return if @receivingRole().hasMethod method.name()
+      return
 
-    @receivingRole().addMethod method.clone()
+    _applyMethod: (method) ->
+      return if @receivingRole().hasMethod method.name()
 
-  appliedRole: ->
-    return @_appliedRole
+      @receivingRole().addMethod method.clone()
 
-  receivingRole: ->
-    return @_receivingRole
+    appliedRole: ->
+      return @_appliedRole
 
-module.exports = ToRole
+    receivingRole: ->
+      return @_receivingRole

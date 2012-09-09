@@ -1,39 +1,40 @@
-_    = require "underscore"
-util = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class HasAttributes
-  _buildAttributeProperties: (args) ->
-    @__attributeMap  = {}
-    @_attributeClass = args.attributeClass ? @_defaultAttributeClass()
+define (require) ->
+  _    = require "underscore"
+  util = require "util"
 
-  addAttribute: (attribute) ->
-    if attribute not instanceof @_defaultAttributeClass()
-      aclass = @attributeClass()
-      attribute = new aclass attribute
+  class HasAttributes
+    _buildAttributeProperties: (args) ->
+      @__attributeMap  = {}
+      @_attributeClass = args.attributeClass ? @_defaultAttributeClass()
 
-    @_attachAttribute attribute
-    @_attributeMap()[ attribute.name() ] = attribute
+    addAttribute: (attribute) ->
+      if attribute not instanceof @_defaultAttributeClass()
+        aclass = @attributeClass()
+        attribute = new aclass attribute
 
-    return attribute
+      @_attachAttribute attribute
+      @_attributeMap()[ attribute.name() ] = attribute
 
-  removeAttribute: (attribute) ->
-    @_detachAttribute attribute
-    delete @_attributeMap()[ attribute.name() ]
-    return
+      return attribute
 
-  hasAttribute: (name) ->
-    return @_attributeMap()[name]?
+    removeAttribute: (attribute) ->
+      @_detachAttribute attribute
+      delete @_attributeMap()[ attribute.name() ]
+      return
 
-  attributeNamed: (name) ->
-    return @_attributeMap()[name]
+    hasAttribute: (name) ->
+      return @_attributeMap()[name]?
 
-  attributes: ->
-    return _.values @_attributeMap()
+    attributeNamed: (name) ->
+      return @_attributeMap()[name]
 
-  _attributeMap: ->
-    return @__attributeMap
+    attributes: ->
+      return _.values @_attributeMap()
 
-  attributeClass: ->
-    return @_attributeClass
+    _attributeMap: ->
+      return @__attributeMap
 
-module.exports = HasAttributes
+    attributeClass: ->
+      return @_attributeClass

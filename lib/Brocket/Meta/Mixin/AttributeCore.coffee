@@ -1,65 +1,66 @@
-_    = require "underscore"
-util = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class AttributeCore
-  _buildAttributeCore: (args) ->
-    @_name = args.name
+define (require) ->
+  _    = require "underscore"
+  util = require "util"
 
-    @_access = args.access ? "ro"
-    @_validateAccess @_access
+  class AttributeCore
+    _buildAttributeCore: (args) ->
+      @_name = args.name
 
-    @_required  = args.required ? false
-    @_lazy      = args.lazy     ? false
+      @_access = args.access ? "ro"
+      @_validateAccess @_access
 
-    return
+      @_required  = args.required ? false
+      @_lazy      = args.lazy     ? false
 
-  _validateAccess: (access) ->
-    return if access in [ "bare", "ro", "rw" ]
-    throw new Error "The access value for an attribute must be \"bare, \"ro\" or \"rw\", not \"#{access}\""
+      return
 
-  name: ->
-    @_name
+    _validateAccess: (access) ->
+      return if access in [ "bare", "ro", "rw" ]
+      throw new Error "The access value for an attribute must be \"bare, \"ro\" or \"rw\", not \"#{access}\""
 
-  access: ->
-    @_access
+    name: ->
+      @_name
 
-  required: ->
-    @_required
+    access: ->
+      @_access
 
-  isLazy: ->
-    @_lazy
+    required: ->
+      @_required
 
-  reader: ->
-    @_reader
+    isLazy: ->
+      @_lazy
 
-  hasReader: ->
-    @reader()?
+    reader: ->
+      @_reader
 
-  writer: ->
-    @_writer
+    hasReader: ->
+      @reader()?
 
-  hasWriter: ->
-    return @writer()?
+    writer: ->
+      @_writer
 
-  accessor: ->
-    @_accessor
+    hasWriter: ->
+      return @writer()?
 
-  hasAccessor: ->
-    return @accessor()?
+    accessor: ->
+      @_accessor
 
-  predicate: ->
-    @_predicate
+    hasAccessor: ->
+      return @accessor()?
 
-  hasPredicate: ->
-    @predicate()?
+    predicate: ->
+      @_predicate
 
-  clearer: ->
-    @_clearer
+    hasPredicate: ->
+      @predicate()?
 
-  hasClearer: ->
-    @clearer()?
+    clearer: ->
+      @_clearer
 
-  _defaultFunc: ->
-    @__defaultFunc
+    hasClearer: ->
+      @clearer()?
 
-module.exports = AttributeCore
+    _defaultFunc: ->
+      @__defaultFunc

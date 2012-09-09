@@ -1,13 +1,14 @@
-_    = require "underscore"
-util = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class RequiredMethod
-  constructor: (args) ->
-    @_name = args.name
+define (require) ->
+  _    = require "underscore"
+  util = require "util"
 
-    return
+  class RequiredMethod
+    constructor: (args) ->
+      @_name = args.name
 
-  name: ->
-    return @_name
+      return
 
-module.exports = RequiredMethod
+    name: ->
+      return @_name

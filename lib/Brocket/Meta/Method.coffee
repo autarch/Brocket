@@ -1,63 +1,64 @@
-_    = require "underscore"
-util = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class Method
-  constructor: (args) ->
-    @_name           = args.name
-    @_body           = args.body
-    @_source         = args.source
-    @_associatedMeta = args.associatedMeta
+define (require) ->
+  _    = require "underscore"
+  util = require "util"
 
-    return
+  class Method
+    constructor: (args) ->
+      @_name           = args.name
+      @_body           = args.body
+      @_source         = args.source
+      @_associatedMeta = args.associatedMeta
 
-  clone: (args) ->
-    args ?= {}
+      return
 
-    for prop in [ "name", "body" ]
-      args[prop] ?= @[prop]()
+    clone: (args) ->
+      args ?= {}
 
-    args.source = @source()
+      for prop in [ "name", "body" ]
+        args[prop] ?= @[prop]()
 
-    constructor = @constructor
+      args.source = @source()
 
-    return new constructor args
+      constructor = @constructor
 
-  attachToMeta: (meta) ->
-    @_setAssociatedMeta meta
-    return
+      return new constructor args
 
-  detachFromMeta: (meta) ->
-    @_clearAssociatedMeta()
-    return
+    attachToMeta: (meta) ->
+      @_setAssociatedMeta meta
+      return
 
-  name: ->
-    return @_name
+    detachFromMeta: (meta) ->
+      @_clearAssociatedMeta()
+      return
 
-  body: ->
-    return @_body
+    name: ->
+      return @_name
 
-  source: ->
-    return @_source
+    body: ->
+      return @_body
 
-  associatedMeta: ->
-    return @_associatedMeta
+    source: ->
+      return @_source
 
-  _setAssociatedMeta: (meta) ->
-    @_associatedMeta = meta
-    return
+    associatedMeta: ->
+      return @_associatedMeta
 
-  _clearAssociatedMeta: ->
-    delete @_associatedMeta
-    return
+    _setAssociatedMeta: (meta) ->
+      @_associatedMeta = meta
+      return
 
-  # XXX - this is a horrible, horrible, horrible hack - it's necessary because
-  # of the wonky way inheritance is currently being handled
-  isInheritable: ->
-    name = @name()
-    if name == "BUILD" || name == "BUILDARGS"
-      meta = @associatedMeta()
-      return false unless meta? && meta.name() == "Brocket.Base"
+    _clearAssociatedMeta: ->
+      delete @_associatedMeta
+      return
 
-    return true
+    # XXX - this is a horrible, horrible, horrible hack - it's necessary because
+    # of the wonky way inheritance is currently being handled
+    isInheritable: ->
+      name = @name()
+      if name == "BUILD" || name == "BUILDARGS"
+        meta = @associatedMeta()
+        return false unless meta? && meta.name() == "Brocket.Base"
 
-module.exports = Method
+      return true

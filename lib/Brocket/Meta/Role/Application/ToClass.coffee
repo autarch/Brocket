@@ -1,85 +1,86 @@
-_           = require "underscore"
-Application = require "../Application"
-Conflicting = require "../ConflictingMethod"
-util        = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class ToClass extends Application
-  apply: (role, metaclass) ->
-    @_role  = role
-    @_class = metaclass
+define (require) ->
+  _           = require "underscore"
+  Application = require "../Application"
+  Conflicting = require "../ConflictingMethod"
+  util        = require "util"
 
-    super
+  class ToClass extends Application
+    apply: (role, metaclass) ->
+      @_role  = role
+      @_class = metaclass
 
-    metaclass.addRole role
-    metaclass.addRoleApplication @
+      super
 
-    return
+      metaclass.addRole role
+      metaclass.addRoleApplication @
 
-  # XXX - also need to handle conflicting methods
-  _checkRequiredMethods: ->
-    missing = []
-    conflicting = []
+      return
 
-    for method in @role().requiredMethods()
-      continue if @class().hasMethod method.name()
+    # XXX - also need to handle conflicting methods
+    _checkRequiredMethods: ->
+      missing = []
+      conflicting = []
 
-      if method instanceof Conflicting
-        conflicting.push method
-      else
-        missing.push method
+      for method in @role().requiredMethods()
+        continue if @class().hasMethod method.name()
 
-    messages = []
+        if method instanceof Conflicting
+          conflicting.push method
+        else
+          missing.push method
 
-    if conflicting.length
-      message = "The following method conflicts were detected:"
-      for conflict in conflicting
-        roles = (_.map conflict.roles(), (r) -> r.name() ).join " and "
-        message += "\n'#{ conflict.name() }' conflicts in #{roles}"
+      messages = []
 
-      messages.push message
+      if conflicting.length
+        message = "The following method conflicts were detected:"
+        for conflict in conflicting
+          roles = (_.map conflict.roles(), (r) -> r.name() ).join " and "
+          message += "\n'#{ conflict.name() }' conflicts in #{roles}"
 
-    if missing.length
-      noun = if missing.length > 1 then "method" else "methods"
-      list = _.map missing.sort().join(", "), (name) ->
-        "'#{name}'"
+        messages.push message
 
-      message = "The #{ @role().name() } role requires the #{noun} #{list}
-                 to be implemented by #{ @class().name() }"
+      if missing.length
+        noun = if missing.length > 1 then "method" else "methods"
+        list = _.map missing.sort().join(", "), (name) ->
+          "'#{name}'"
 
-      messages.push message
+        message = "The #{ @role().name() } role requires the #{noun} #{list}
+                   to be implemented by #{ @class().name() }"
 
-    if messages.length
-      throw new Error messages.join "\n"
+        messages.push message
 
-    return
+      if messages.length
+        throw new Error messages.join "\n"
 
-  _applyAttributes: ->
-    metaclass = @class()
+      return
 
-    for attr in @role().attributes()
-      continue if metaclass.hasAttribute attr.name()
-      metaclass.addAttribute attr.attributeForClass()
+    _applyAttributes: ->
+      metaclass = @class()
 
-    return
+      for attr in @role().attributes()
+        continue if metaclass.hasAttribute attr.name()
+        metaclass.addAttribute attr.attributeForClass()
 
-  _applyMethods: ->
-    metaclass = @class()
+      return
 
-    for method in @role().methods()
-      @_applyMethod method
+    _applyMethods: ->
+      metaclass = @class()
 
-    return
+      for method in @role().methods()
+        @_applyMethod method
 
-  _applyMethod: (method) ->
-    return if @class().hasMethod method.name()
-    @class().addMethod method.clone()
+      return
 
-    return
+    _applyMethod: (method) ->
+      return if @class().hasMethod method.name()
+      @class().addMethod method.clone()
 
-  role: ->
-    return @_role
+      return
 
-  class: ->
-    return @_class
+    role: ->
+      return @_role
 
-module.exports = ToClass
+    class: ->
+      return @_class

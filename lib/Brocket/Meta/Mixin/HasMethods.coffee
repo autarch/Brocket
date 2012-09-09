@@ -1,44 +1,45 @@
-_      = require "underscore"
-Method = require "../Method"
-util   = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class HasMethods
-  _buildMethodProperties: (args) ->
-    @__methodsObj = {}
-    @_methodClass = args.methodClass ? Method
+define (require) ->
+  _      = require "underscore"
+  Method = require "../Method"
+  util   = require "util"
 
-  addMethod: (method) ->
-    if method not instanceof Method
-      mclass = @methodClass()
-      method.source ?= @
-      method = new mclass method
+  class HasMethods
+    _buildMethodProperties: (args) ->
+      @__methodsObj = {}
+      @_methodClass = args.methodClass ? Method
 
-    @_methodsObj()[ method.name() ] = method
-    @_attachMethod method
+    addMethod: (method) ->
+      if method not instanceof Method
+        mclass = @methodClass()
+        method.source ?= @
+        method = new mclass method
 
-    return
+      @_methodsObj()[ method.name() ] = method
+      @_attachMethod method
 
-  removeMethod: (method) ->
-    method = @methodNamed method unless method instanceof Method
+      return
 
-    delete @_methodsObj()[ method.name() ]
-    @_detachMethod method
+    removeMethod: (method) ->
+      method = @methodNamed method unless method instanceof Method
 
-    return
+      delete @_methodsObj()[ method.name() ]
+      @_detachMethod method
 
-  hasMethod: (name) ->
-    return @_methodMap()[name]?
+      return
 
-  methodNamed: (name) ->
-    return @_methodMap()[name]
+    hasMethod: (name) ->
+      return @_methodMap()[name]?
 
-  methods: ->
-    _.values @_methodMap()
+    methodNamed: (name) ->
+      return @_methodMap()[name]
 
-  _methodsObj: ->
-    @__methodsObj
+    methods: ->
+      _.values @_methodMap()
 
-  methodClass: ->
-    @_methodClass
+    _methodsObj: ->
+      @__methodsObj
 
-module.exports = HasMethods
+    methodClass: ->
+      @_methodClass

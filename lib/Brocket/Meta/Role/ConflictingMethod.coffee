@@ -1,16 +1,17 @@
-_              = require "underscore"
-RequiredMethod = require "./RequiredMethod"
-util           = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class ConflictingMethod extends RequiredMethod
-  constructor: (args) ->
-    super
+define (require) ->
+  _              = require "underscore"
+  RequiredMethod = require "./RequiredMethod"
+  util           = require "util"
 
-    @_roles = args.roles
+  class ConflictingMethod extends RequiredMethod
+    constructor: (args) ->
+      super
 
-    return
+      @_roles = args.roles
 
-  roles: ->
-    return @_roles
+      return
 
-module.exports = ConflictingMethod
+    roles: ->
+      return @_roles

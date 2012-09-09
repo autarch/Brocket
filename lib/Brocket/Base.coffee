@@ -1,24 +1,26 @@
-Class = require "./Meta/Class"
-util  = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class Base
-  constructor: ->
-    throw new Error "Cannot construct a Brocket/Base object"
+define (require) ->
+  Class = require "./Meta/Class"
+  util  = require "util"
 
-  BUILDARGS: (params) ->
-    return params ? {}
+  class Base
+    constructor: ->
+      throw new Error "Cannot construct a Brocket/Base object"
 
-  BUILDALL: (params) ->
-    for meta in @meta().selfAndParents().reverse()
-      build = meta.methodNamed "BUILD"
-      build.body().call @, params if build?
+    BUILDARGS: (params) ->
+      return params ? {}
 
-    return
+    BUILDALL: (params) ->
+      for meta in @meta().selfAndParents().reverse()
+        build = meta.methodNamed "BUILD"
+        build.body().call @, params if build?
 
-  DOES: (role) ->
-    return @meta().doesRole role
+      return
 
-  _meta = new Class { name: "Brocket.Base", _class: @ }
-  @meta: -> _meta
+    DOES: (role) ->
+      return @meta().doesRole role
 
-module.exports = Base
+    _meta = new Class { name: "Brocket.Base", _class: @ }
+    @meta: -> _meta
+

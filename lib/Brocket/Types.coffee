@@ -1,3 +1,7 @@
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
+
+define (require) ->
+  return
 
   _isa = (value, type, desc) ->
     [ ok, type_desc ] = _matches_any_type value, type

@@ -1,42 +1,47 @@
-Base    = require "./Brocket/Base"
-Class   = require "./Brocket/Meta/Class"
-Helpers = require "./Brocket/Helpers"
-util    = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-_has = (meta, name, attr) ->
-  clone = name: name
-  for own key, val of attr
-    clone[key] = val
+define (require) ->
+  Base    = require "./Brocket/Base"
+  Class   = require "./Brocket/Meta/Class"
+  Helpers = require "./Brocket/Helpers"
+  util    = require "util"
 
-  meta.addAttribute clone
+  _has = (meta, name, attr) ->
+    clone = name: name
+    for own key, val of attr
+      clone[key] = val
 
-_method = (meta, name, body) ->
-  meta.addMethod name: name, body: body, source: meta
+    meta.addAttribute clone
 
-_subclasses = (meta, supers) ->
-  meta.setSuperclasses supers
+  _method = (meta, name, body) ->
+    meta.addMethod name: name, body: body, source: meta
 
-_with = (meta, roles) ->
-  Helpers.applyRoles meta, roles
+  _subclasses = (meta, supers) ->
+    meta.setSuperclasses supers
 
-_consumes = (meta, name, options) ->
+  _with = (meta, roles) ->
+    Helpers.applyRoles meta, roles
 
-module.exports.makeClass = (name, definition) ->
-  metaclass = new Class name: name
+  _consumes = (meta, name, options) ->
 
-  metaclass.setSuperclasses(Base)
+  makeClass = (name, definition) ->
+    metaclass = new Class name: name
 
-  klass = metaclass.class()
+    metaclass.setSuperclasses(Base)
 
-  B = {}
-  B.has        = (name, attr)    -> _has metaclass, name, attr
-  B.method     = (name, body)    -> _method metaclass, name, body
-  B.subclasses = (supers)        -> _subclasses metaclass, supers
-  B.with       = (roles...)      -> _with metaclass, roles
-  B.consumes   = (role, options) -> _consumes metaclass, role, options
+    klass = metaclass.class()
 
-  definition ?= -> return
+    B = {}
+    B.has        = (name, attr)    -> _has metaclass, name, attr
+    B.method     = (name, body)    -> _method metaclass, name, body
+    B.subclasses = (supers)        -> _subclasses metaclass, supers
+    B.with       = (roles...)      -> _with metaclass, roles
+    B.consumes   = (role, options) -> _consumes metaclass, role, options
 
-  definition.call @, B
+    definition ?= -> return
 
-  return klass
+    definition.call @, B
+
+    return klass
+
+  return { makeClass: makeClass };

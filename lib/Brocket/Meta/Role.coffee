@@ -1,185 +1,186 @@
-_                 = require "underscore"
-Attribute         = require "./Attribute"
-Cache             = require "./Cache"
-ConflictingMethod = require "./Role/ConflictingMethod"
-HasAttributes     = require "./Mixin/HasAttributes"
-HasMethods        = require "./Mixin/HasMethods"
-HasRoles          = require "./Mixin/HasRoles"
-RequiredMethod    = require "./Role/RequiredMethod"
-RoleAttribute     = require "./Role/Attribute"
-ToClass           = require "./Role/Application/ToClass"
-ToInstance        = null #require "./Role/Application/ToInstance"
-ToRole            = require "./Role/Application/ToRole"
-util              = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-Class     = null
-Composite = null
+define (require) ->
+    _                 = require "underscore"
+  Attribute         = require "./Attribute"
+  Cache             = require "./Cache"
+  ConflictingMethod = require "./Role/ConflictingMethod"
+  HasAttributes     = require "./Mixin/HasAttributes"
+  HasMethods        = require "./Mixin/HasMethods"
+  HasRoles          = require "./Mixin/HasRoles"
+  RequiredMethod    = require "./Role/RequiredMethod"
+  RoleAttribute     = require "./Role/Attribute"
+  ToClass           = require "./Role/Application/ToClass"
+  ToInstance        = null #require "./Role/Application/ToInstance"
+  ToRole            = require "./Role/Application/ToRole"
+  util              = require "util"
 
-class Role
-  for own key of HasAttributes.prototype
-    Role.prototype[key] = HasAttributes.prototype[key]
+  Class     = null
+  Composite = null
 
-  for own key of HasMethods.prototype
-    Role.prototype[key] = HasMethods.prototype[key]
+  class Role
+    for own key of HasAttributes.prototype
+      Role.prototype[key] = HasAttributes.prototype[key]
 
-  for own key of HasRoles.prototype
-    Role.prototype[key] = HasRoles.prototype[key]
+    for own key of HasMethods.prototype
+      Role.prototype[key] = HasMethods.prototype[key]
 
-  constructor: (args) ->
-    @_name = args.name
-    throw new Error "You must provide a name when constructing a role" unless @_name
+    for own key of HasRoles.prototype
+      Role.prototype[key] = HasRoles.prototype[key]
 
-    args.cache = true unless args.cache? && ! args.cache
+    constructor: (args) ->
+      @_name = args.name
+      throw new Error "You must provide a name when constructing a role" unless @_name
 
-    # This is necessary to avoid a circular dependency issue between Class &
-    # Role. One of them has to be loaded later.
-    Class ?= require "./Class"
+      args.cache = true unless args.cache? && ! args.cache
 
-    if args.cache && Cache.metaObjectExists args.name
-      meta = Cache.getMetaObject args.name
-      unless meta instanceof Role
-        message = "Found an existing meta object named #{ args.name } which is not a Role object."
-        if meta instanceof Class
-          message += " You cannot create a Class and a Role with the same name."
-        throw new Error message
+      # This is necessary to avoid a circular dependency issue between Class &
+      # Role. One of them has to be loaded later.
+      Class ?= require "./Class"
 
-      return meta
+      if args.cache && Cache.metaObjectExists args.name
+        meta = Cache.getMetaObject args.name
+        unless meta instanceof Role
+          message = "Found an existing meta object named #{ args.name } which is not a Role object."
+          if meta instanceof Class
+            message += " You cannot create a Class and a Role with the same name."
+          throw new Error message
 
-    @_buildMethodProperties args
-    @_buildAttributeProperties args
-    @_buildRoleProperties args
+        return meta
 
-    @_requiredMethods = []
+      @_buildMethodProperties args
+      @_buildAttributeProperties args
+      @_buildRoleProperties args
 
-    @_requiredMethodClass    = args.requiredMethodClass ? RequiredMethod
-    @_conflictingMethodClass = args.conflictingMethodClass ? ConflictingMethod
+      @_requiredMethods = []
 
-    @_applicationToClassClass    = args.applicationToClassClass ? ToClass
-    @_applicationToRoleClass     = args.applicationToRoleClass ? ToRole
-    @_applicationToInstanceClass = args.applicationToInstanceClass ? ToRole
+      @_requiredMethodClass    = args.requiredMethodClass ? RequiredMethod
+      @_conflictingMethodClass = args.conflictingMethodClass ? ConflictingMethod
 
-    @_appliedAttributeClass = args.appliedAttributeClass ? Attribute
+      @_applicationToClassClass    = args.applicationToClassClass ? ToClass
+      @_applicationToRoleClass     = args.applicationToRoleClass ? ToRole
+      @_applicationToInstanceClass = args.applicationToInstanceClass ? ToRole
 
-    @_localRoles = []
+      @_appliedAttributeClass = args.appliedAttributeClass ? Attribute
 
-    Cache.storeMetaObject @ if args.cache
+      @_localRoles = []
 
-    return
+      Cache.storeMetaObject @ if args.cache
 
-  @Combine = (rolesWithArgs) ->
-    Composite ?= require "./Role/Composite"
+      return
 
-    roles = []
-    args  = {}
+    @Combine = (rolesWithArgs) ->
+      Composite ?= require "./Role/Composite"
 
-    for i in [ 0 .. rolesWithArgs.length - 1 ] by 2
-      role = rolesWithArgs[i]
-      roles.push role
-      args[ role.name() ] = rolesWithArgs[ i + 1 ]
+      roles = []
+      args  = {}
 
-    # XXX - need to allow each role to provide traits to be applied to the
-    # Composite class
-    composite = new Composite roles: roles
-    return composite.applyCompositionArgs roleParams: args
+      for i in [ 0 .. rolesWithArgs.length - 1 ] by 2
+        role = rolesWithArgs[i]
+        roles.push role
+        args[ role.name() ] = rolesWithArgs[ i + 1 ]
 
-  _defaultAttributeClass: ->
-    RoleAttribute
+      # XXX - need to allow each role to provide traits to be applied to the
+      # Composite class
+      composite = new Composite roles: roles
+      return composite.applyCompositionArgs roleParams: args
 
-  _attachAttribute: (attr) ->
-    attr.attachToRole @
-    return
+    _defaultAttributeClass: ->
+      RoleAttribute
 
-  _detachAttribute: (attr) ->
-    attr.detachFromRole @
-    return
+    _attachAttribute: (attr) ->
+      attr.attachToRole @
+      return
 
-  _attachMethod: (method) ->
-    method.attachToMeta @
-    return
+    _detachAttribute: (attr) ->
+      attr.detachFromRole @
+      return
 
-  _detachMethod: (method) ->
-    method.detachFromMeta @
-    return
+    _attachMethod: (method) ->
+      method.attachToMeta @
+      return
 
-  # Unlike a class, methods can only be added to a role explicitly, so we
-  # don't need to check an associated prototype for implicit methods.
-  _methodMap: ->
-    return @_methodsObj()
+    _detachMethod: (method) ->
+      method.detachFromMeta @
+      return
 
-  addRequiredMethod: (method) ->
-    rmclass = @requiredMethodClass()
-    unless method instanceof rmclass
-      method = new rmclass name: method
+    # Unlike a class, methods can only be added to a role explicitly, so we
+    # don't need to check an associated prototype for implicit methods.
+    _methodMap: ->
+      return @_methodsObj()
 
-    @requiredMethods().push method
+    addRequiredMethod: (method) ->
+      rmclass = @requiredMethodClass()
+      unless method instanceof rmclass
+        method = new rmclass name: method
 
-    return;
+      @requiredMethods().push method
 
-  addConflictingMethod: (method) ->
-    rmclass = @conflictingMethodClass()
-    unless method instanceof rmclass
-      method = new rmclass method
+      return;
 
-    @requiredMethods().push method
+    addConflictingMethod: (method) ->
+      rmclass = @conflictingMethodClass()
+      unless method instanceof rmclass
+        method = new rmclass method
 
-    return;
+      @requiredMethods().push method
 
-  apply: (other, args) ->
-    args ?= {}
+      return;
 
-    if other instanceof Class
-      appClass = @applicationToClassClass()
-    else if other instanceof Role
-      appClass = @applicationToRoleClass()
-    else if other instanceof Object
-      appClass = @applicationToInstanceClass()
-    else
-      throw new Error "Cannot apply a role to a #{ other.toString() }"
+    apply: (other, args) ->
+      args ?= {}
 
-    (new appClass args).apply @, other
+      if other instanceof Class
+        appClass = @applicationToClassClass()
+      else if other instanceof Role
+        appClass = @applicationToRoleClass()
+      else if other instanceof Object
+        appClass = @applicationToInstanceClass()
+      else
+        throw new Error "Cannot apply a role to a #{ other.toString() }"
 
-    return
+      (new appClass args).apply @, other
 
-  roles: ->
-    roles = [@].concat @localRoles()
+      return
 
-    seen = {}
-    for role in roles
-      continue if seen[ role.name() ]
-      seen[ role.name() ] = role
-      roles.push role.localRoles()
+    roles: ->
+      roles = [@].concat @localRoles()
 
-    return _.values seen
+      seen = {}
+      for role in roles
+        continue if seen[ role.name() ]
+        seen[ role.name() ] = role
+        roles.push role.localRoles()
 
-  _roleForCombination: ->
-    return @
+      return _.values seen
 
-  name: ->
-    return @_name
+    _roleForCombination: ->
+      return @
 
-  requiredMethods: ->
-    return @_requiredMethods
+    name: ->
+      return @_name
 
-  requiredMethodClass: ->
-    return @_requiredMethodClass
+    requiredMethods: ->
+      return @_requiredMethods
 
-  conflictingMethods: ->
-    cmclass = @conflictingMethodClass()
-    return ( m for m in @requiredMethods() when m instanceof cmclass )
+    requiredMethodClass: ->
+      return @_requiredMethodClass
 
-  conflictingMethodClass: ->
-    return @_conflictingMethodClass
+    conflictingMethods: ->
+      cmclass = @conflictingMethodClass()
+      return ( m for m in @requiredMethods() when m instanceof cmclass )
 
-  applicationToClassClass: ->
-    return @_applicationToClassClass
+    conflictingMethodClass: ->
+      return @_conflictingMethodClass
 
-  applicationToRoleClass: ->
-    return @_applicationToRoleClass
+    applicationToClassClass: ->
+      return @_applicationToClassClass
 
-  applicationToInstanceClass: ->
-    return @_applicationToInstanceClass
+    applicationToRoleClass: ->
+      return @_applicationToRoleClass
 
-  appliedAttributeClass: ->
-    return @_appliedAttributeClass
+    applicationToInstanceClass: ->
+      return @_applicationToInstanceClass
 
-module.exports = Role
+    appliedAttributeClass: ->
+      return @_appliedAttributeClass

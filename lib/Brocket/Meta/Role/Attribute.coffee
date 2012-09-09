@@ -1,56 +1,57 @@
-_             = require "underscore"
-AttributeCore = require "../Mixin/AttributeCore"
-util          = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class Attribute
-  for own key of AttributeCore.prototype
-    Attribute.prototype[key] = AttributeCore.prototype[key]
+define (require) ->
+  _             = require "underscore"
+  AttributeCore = require "../Mixin/AttributeCore"
+  util          = require "util"
 
-  constructor: (args) ->
-    @_buildAttributeCore args
+  class Attribute
+    for own key of AttributeCore.prototype
+      Attribute.prototype[key] = AttributeCore.prototype[key]
 
-    if args._originalRole?
-      @__originalRole = args._originalRole
-      delete args._originalRole
+    constructor: (args) ->
+      @_buildAttributeCore args
 
-    @__originalArgs = args
+      if args._originalRole?
+        @__originalRole = args._originalRole
+        delete args._originalRole
 
-    return
+      @__originalArgs = args
 
-  attributeForClass: ->
-    aclass = @originalRole().appliedAttributeClass()
-    return new aclass @_originalArgs()
+      return
 
-  attachToRole: (role) ->
-    @_associatedRole = role
-    return;
+    attributeForClass: ->
+      aclass = @originalRole().appliedAttributeClass()
+      return new aclass @_originalArgs()
 
-  detachFromRole: (role) ->
-    delete @_associatedRole
-    return;
+    attachToRole: (role) ->
+      @_associatedRole = role
+      return;
 
-  associatedRole: ->
-    return @_associatedRole
+    detachFromRole: (role) ->
+      delete @_associatedRole
+      return;
 
-  clone: ->
-    argsCopy = {}
-    for own prop, val of @_originalArgs()
-      argsCopy[prop] = val
+    associatedRole: ->
+      return @_associatedRole
 
-    argsCopy._originalRole = @_originalRole()
+    clone: ->
+      argsCopy = {}
+      for own prop, val of @_originalArgs()
+        argsCopy[prop] = val
 
-    constructor = @constructor
-    return new constructor argsCopy
+      argsCopy._originalRole = @_originalRole()
 
-  originalRole: ->
-    orig = @_originalRole()
-    return orig if orig?
-    return @associatedRole()
+      constructor = @constructor
+      return new constructor argsCopy
 
-  _originalArgs: ->
-    return @__originalArgs
+    originalRole: ->
+      orig = @_originalRole()
+      return orig if orig?
+      return @associatedRole()
 
-  _originalRole: ->
-    return @__originalRole
+    _originalArgs: ->
+      return @__originalArgs
 
-module.exports = Attribute
+    _originalRole: ->
+      return @__originalRole

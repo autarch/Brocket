@@ -1,35 +1,36 @@
-_             = require "underscore"
-Role          = require "../Role"
-RoleSummation = require "./Application/RoleSummation"
-util          = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class Composite extends Role
-  constructor: (args) ->
-    args.name ?= ( _.map args.roles, (r) -> r.name() ).join "|"
-    @_roles = args.roles
+define (require) ->
+  _             = require "underscore"
+  Role          = require "../Role"
+  RoleSummation = require "./Application/RoleSummation"
+  util          = require "util"
 
-    argsCopy = {}
-    for own key, val of args
-      argsCopy[key] = val
+  class Composite extends Role
+    constructor: (args) ->
+      args.name ?= ( _.map args.roles, (r) -> r.name() ).join "|"
+      @_roles = args.roles
 
-    delete argsCopy.roles
-    argsCopy.cache = false
+      argsCopy = {}
+      for own key, val of args
+        argsCopy[key] = val
 
-    super argsCopy
+      delete argsCopy.roles
+      argsCopy.cache = false
 
-    @_roleSummationClass = args.roleSummationClass ? RoleSummation
+      super argsCopy
 
-    return
+      @_roleSummationClass = args.roleSummationClass ? RoleSummation
 
-  applyCompositionArgs: (args) ->
-    rsclass = @roleSummationClass()
-    (new rsclass args).apply @
-    return @
+      return
 
-  roles: ->
-    @_roles
+    applyCompositionArgs: (args) ->
+      rsclass = @roleSummationClass()
+      (new rsclass args).apply @
+      return @
 
-  roleSummationClass: ->
-    @_roleSummationClass
+    roles: ->
+      @_roles
 
-module.exports = Composite
+    roleSummationClass: ->
+      @_roleSummationClass

@@ -1,19 +1,20 @@
-_       = require "underscore"
-Helpers = require "../../Helpers"
-util    = require "util"
+`if (typeof define !== 'function') { var define = require('amdefine')(module) }`
 
-class Application
-  apply: ->
-    @_checkRequiredMethods()
+define (require) ->
+  _       = require "underscore"
+  Helpers = require "../../Helpers"
+  util    = require "util"
 
-    @_applyAttributes()
-    @_applyMethods()
+  class Application
+    apply: ->
+      @_checkRequiredMethods()
 
-#    @_applyOverrideMethodModifiers()
-#    @_applyBeforeMethodModifiers()
-#    @_applyAroundMethodModifiers()
-#    @_applyAfterMethodModifiers()
+      @_applyAttributes()
+      @_applyMethods()
 
-    return
+  #    @_applyOverrideMethodModifiers()
+  #    @_applyBeforeMethodModifiers()
+  #    @_applyAroundMethodModifiers()
+  #    @_applyAfterMethodModifiers()
 
-module.exports = Application
+      return
