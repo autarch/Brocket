@@ -19,7 +19,7 @@ more fun. It allows you to declare classes using a simple declarative DSL-ish
 syntax.
 
 Under the hood, Brocket is based on a powerful meta-model. Every aspect of
-Brocket is itself a class, providing powerful introspectiona nd extension
+Brocket is itself a class, providing powerful introspection and extension
 features.
 
 Brocket is a port of Perl's [Moose](http://moose.perl.org).
